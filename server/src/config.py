@@ -3,12 +3,14 @@
 # Copyright Ivan Remen (i.remen@corp.mail.ru) BMSTU 2013
 
 class Config:
-	listen_address = "0.0.0.0"    # Listen this address.
-	port = 27017                  # Listen this port
-	
-	_instance = None
-	def __new__(cls, *args, **kwargs):
+    port = 27017                  # Listen this port
+
+    ssl_enabled = False
+    ssl_private_key = "ssl/cert.key"
+    ssl_certificate = "ssl/cert.crt"
+    _instance = None
+    def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super(Singleton, cls).__new__(
-                                cls, *args, **kwargs)
+                                 cls, *args, **kwargs)
         return cls._instance	
