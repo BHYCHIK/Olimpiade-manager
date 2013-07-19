@@ -25,6 +25,7 @@ window.onload = function() {
 		change(text_changed);
 	$("form.registration_form tr.extra input").
 		change(text_changed);
+	window.password_ok = true;
 }
 
 function text_changed() {
@@ -48,6 +49,7 @@ function text_changed() {
 		$tr.parent().find(".passw_textbox").each(function() {
 			var $p = $(this).parent().parent();
 			f(pirate, $p, ".invalid_passw");
+			window.password_ok = !flag || !pirate;
 			if (!flag) {
 				f(true, $p);
 				$p.find(".invalid_passw").css("display", "none");
@@ -68,13 +70,20 @@ function validate_form_onsubmit(form) {
 	var $table = $("form.registration_form tbody");
 	$table.find(".required .valid_msg").each(function(){
 		if ($(this).css("display") == "none") {
-			$(this).parent().find(".invalid_msg:not(.invalid_passw)").
-				css("display", "block");
+			$(this).parent().find(".invalid_msg").css("display", function() {
+				if (!$(this).hasClass("invalid_passw") && 
+					$(this).parent().children(".invalid_passw").size() &&
+					$(this).parent().find(".invalid_passw").css("display") != "none") 
+					return "none"; 
+				else if ($(this).hasClass("invalid_passw") && window.password_ok) return "none";
+				return "block";
+			});
 		} });
 
 	var flag = true;
-	$table.find(".invalid_msg").each(function(){
-		if ($(this).css("display") != "none") flag = false; });
+	$table.find(".invalid_msg").each(function() {
+		if ($(this).css("display") != "none") flag = false; 
+	});
 
 	if (flag) success(form);
 
