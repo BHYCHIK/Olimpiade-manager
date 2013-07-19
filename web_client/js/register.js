@@ -3,11 +3,15 @@ window.onload = function() {
 	$("form.registration_form").attr("onsubmit", 
 			"return validate_form_onsubmit(this);");
 	$("form.registration_form tr.required").append(function(){
-			return "<td id=\"" +
-			$(this).find("input").attr("name") +
+			var name = $(this).find("input").attr("name");
+			var res = "<td id=\"" + name +
 			"\"><div class=\"invalid_msg\" style=\"display: " +
-			"none;\">Заполните обязательное поле!</div>" +
-			"<div class=\"valid_msg\" style=\"" +
+			"none;\">Заполните обязательное поле!</div>";
+			if ("u_passw_conf".indexOf(name) == 0) {
+				res += "<div class=\"invalid_msg invalid_passw\" " +
+					"style=\"display: none;\">Пароли не совпадают</div>"
+			}
+			return res + "<div class=\"valid_msg\" style=\"" +
 			"display: none;\">Ок</div></td>"; });
 	$("form.registration_form tr.extra").append(function(){
 			return "<td id=\"email_textbox\"><div class=\"" +
@@ -25,21 +29,30 @@ window.onload = function() {
 
 function text_changed() {
 	var $tr = $(this).parent().parent();
-	var f = function(cond){
+	var f = function(cond, $tr, extra_class){
+		if (!extra_class) extra_class = "";
 		if (cond) { 
-			$tr.find(".invalid_msg").css("display", "block");
+			$tr.find(".invalid_msg" + extra_class).css("display", "block");
 			$tr.find(".valid_msg").css("display", "none");
 		} else {
 			$tr.find(".valid_msg").css("display", "block");
-			$tr.find(".invalid_msg").css("display", "none");
+			$tr.find(".invalid_msg" + extra_class).css("display", "none");
 		}
 	}
-	if ($tr.attr("class") == "required")
-		f($(this).val() == "");
-	else if ($(this).attr("name") == "u_email") 
+
+	if ("u_passw_conf".indexOf($(this).attr("name")) == 0) {
+		var passw = $(this).val(), pirate = false;
+		$tr.parent().find(".passw_textbox").each(function() {
+			if ($(this).val() != passw) pirate = true; });
+		$tr.parent().find(".passw_textbox").each(function() {
+			f(pirate, $(this).parent().parent(), ".invalid_passw"); });
+	} else if ($tr.attr("class") == "required") {
+		f($(this).val() == "", $tr);
+	} else if ($(this).attr("name") == "u_email") {
 		f($(this).val() != "" && 
 			!/^[a-zA-Z](\w*)@[a-zA-Z](\w*)\.[a-zA-Z](\w*)/
-				.test($(this).val()));
+				.test($(this).val()), $tr);
+	}
 }
 
 function validate_form_onsubmit(form) {
@@ -50,9 +63,11 @@ function validate_form_onsubmit(form) {
 				css("display", "block");
 		}
 	});
-	
+
 	if (form.u_passw.value() != form.u_passw_conf.value()) {
-		// invalid passw
+		$table.find(".invalid_passw").css("display", "block");
+	} else {
+		$table.find(".invalid_passw").css("bisplay", "none");
 	}
 
 	var flag = true;
