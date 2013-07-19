@@ -1,0 +1,13 @@
+.login_box {
+	font-size: 12pt;
+	text-align: left;
+}
+
+	.login_box tr:not(:last-child) td:first-child {
+		font-weight: bold;
+	}
+
+	.login_box tr:last-child {
+		font-size: 10pt;
+		text-align: right;
+	}
