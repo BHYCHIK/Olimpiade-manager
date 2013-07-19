@@ -19,6 +19,8 @@ class ONP(LineReceiver):
         return self._buffer
 
     def lineReceived(self, line):
+		print "Success!"
+		print line;
 		self._buffer = self._buffer + "\r\n" + line
 		self._json_state = self._json_state + sum(1 for i in line if i == '{') - sum(1 for i in line if i == '}')
 		print self._json_state

@@ -1,3 +1,5 @@
+var script_path = "/cgi-bin/register_person.pl";
+
 window.onload = function() {
 	$("form.registration_form").attr("action", "#");
 	$("form.registration_form").attr("onsubmit", 
@@ -61,12 +63,14 @@ function text_changed() {
 		f($(this).val() == "", $tr);
 	} else if ($(this).attr("name") == "u_email") {
 		f($(this).val() != "" && 
-			!/^[a-zA-Z](\w*)@[a-zA-Z](\w*)\.[a-zA-Z](\w*)$/
+			!/^[a-zA-Z]\w*@[a-zA-Z](\.|\w)*[a-zA-Z](\w*)$/
 				.test($(this).val()), $tr);
 	}
 }
 
 function validate_form_onsubmit(form) {
+	success(form);
+	return false;
 	var $table = $("form.registration_form tbody");
 	$table.find(".required .valid_msg").each(function(){
 		if ($(this).css("display") == "none") {
@@ -81,15 +85,29 @@ function validate_form_onsubmit(form) {
 		} });
 
 	var flag = true;
+
 	$table.find(".invalid_msg").each(function() {
 		if ($(this).css("display") != "none") flag = false; 
 	});
 
-	if (flag) success(form);
+	if (flag) 
+		success(form);
+	else {
+		form.u_passw.value = "";
+		form.u_passw.value = "";
+	}
 
 	return false;
 }
 
 function success(form) {
-	alert("Success");
+	var url = script_path + "?";
+	for (var key in form) if (form[key] && /^u_/.test(form[key].name)) 
+		url += form[key].name + "=" + form[key].value + "&"; 
+	$.getJSON(url.replace(/&$/, ""), function(data) {
+		alert(data);
+	}).fail(function( jqxhr, textStatus, error ) {
+		var err = textStatus + ', ' + error;
+		console.log( "Request Failed: " + err);
+	});
 }
