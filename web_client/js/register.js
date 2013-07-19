@@ -41,16 +41,25 @@ function text_changed() {
 	}
 
 	if ("u_passw_conf".indexOf($(this).attr("name")) == 0) {
-		var passw = $(this).val(), pirate = false;
+		var passw = $(this).val(), pirate = false, flag = false;
 		$tr.parent().find(".passw_textbox").each(function() {
-			if ($(this).val() != passw) pirate = true; });
+			if ($(this).val() != passw) pirate = true; 
+			if ($(this).val() != "") flag = true; });
 		$tr.parent().find(".passw_textbox").each(function() {
-			f(pirate, $(this).parent().parent(), ".invalid_passw"); });
+			var $p = $(this).parent().parent();
+			f(pirate, $p, ".invalid_passw");
+			if (!flag) {
+				f(true, $p);
+				$p.find(".invalid_passw").css("display", "none");
+			} else {
+				$p.find(".invalid_msg:not(.invalid_passw)").css("display", "none");
+			}
+		});
 	} else if ($tr.attr("class") == "required") {
 		f($(this).val() == "", $tr);
 	} else if ($(this).attr("name") == "u_email") {
 		f($(this).val() != "" && 
-			!/^[a-zA-Z](\w*)@[a-zA-Z](\w*)\.[a-zA-Z](\w*)/
+			!/^[a-zA-Z](\w*)@[a-zA-Z](\w*)\.[a-zA-Z](\w*)$/
 				.test($(this).val()), $tr);
 	}
 }
@@ -59,16 +68,9 @@ function validate_form_onsubmit(form) {
 	var $table = $("form.registration_form tbody");
 	$table.find(".required .valid_msg").each(function(){
 		if ($(this).css("display") == "none") {
-			$(this).parent().find(".invalid_msg").
+			$(this).parent().find(".invalid_msg:not(.invalid_passw)").
 				css("display", "block");
-		}
-	});
-
-	if (form.u_passw.value() != form.u_passw_conf.value()) {
-		$table.find(".invalid_passw").css("display", "block");
-	} else {
-		$table.find(".invalid_passw").css("bisplay", "none");
-	}
+		} });
 
 	var flag = true;
 	$table.find(".invalid_msg").each(function(){
