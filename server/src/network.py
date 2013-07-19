@@ -7,6 +7,9 @@ from twisted.protocols.basic import LineReceiver
 from twisted.internet.protocol import Factory
 from twisted.internet import ssl, reactor
 from config import Config
+from error_handlers import *
+from onp_api import *
+import json
 
 # ONP - Olympiade network protocol
 class ONP(LineReceiver):
@@ -16,17 +19,23 @@ class ONP(LineReceiver):
         self._json_state = 0 # is opened - closed figure brackets
 
     def operate(self):
-        return self._buffer
+        try:
+            request = json.loads(self._buffer)
+        except ValueError:
+            return request_not_json()
+        f_name = request.get("cmd", None)
+        if f_name is None or f_name not in api_functions:
+			return unknown_api_function()
+        return api_functions[f_name](request)
 
     def lineReceived(self, line):
 		self._buffer = self._buffer + "\r\n" + line
 		self._json_state = self._json_state + sum(1 for i in line if i == '{') - sum(1 for i in line if i == '}')
-		print self._json_state
 		if self._json_state == 0:
 			reply = self.operate()
 			self._buffer = ""
 			if reply != None:
-				self.transport.write(reply)
+				self.sendLine(reply)
 
 class ONPFactory(Factory):
     def buildProtocol(self, address):
