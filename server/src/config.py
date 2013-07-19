@@ -3,7 +3,7 @@
 # Copyright Ivan Remen (i.remen@corp.mail.ru) BMSTU 2013
 
 class Config:
-    port = 27017                  # Listen this port
+    port = 5000                  # Listen this port
 
     ssl_enabled = False
     ssl_private_key = "ssl/cert.key"
