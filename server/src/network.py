@@ -22,7 +22,9 @@ class ONP(LineReceiver):
         try:
             request = json.loads(self._buffer)
         except ValueError:
-            return request_not_json()
+            return request_not_valid_json()
+        if not isinstance(request, dict):
+            return request_not_valid_json()
         f_name = request.get("cmd", None)
         if f_name is None or f_name not in api_functions:
 			return unknown_api_function()
