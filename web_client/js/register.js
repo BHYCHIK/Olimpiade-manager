@@ -63,7 +63,7 @@ function text_changed() {
 		f($(this).val() == "", $tr);
 	} else if ($(this).attr("name") == "u_email") {
 		f($(this).val() != "" && 
-			!/^[a-zA-Z]\w*@[a-zA-Z](\.|\w)*[a-zA-Z](\w*)$/
+			!/^[a-zA-Z_]\w*@([a-zA-Z_]\w*\.)+[a-zA-Z_](\w*)$/
 				.test($(this).val()), $tr);
 	}
 }
