@@ -27,17 +27,17 @@ class ONP(LineReceiver):
             return request_not_valid_json()
         f_name = request.get("cmd", None)
         if f_name is None or f_name not in api_functions:
-			return unknown_api_function()
+            return unknown_api_function()
         return api_functions[f_name](request)
 
     def lineReceived(self, line):
-		self._buffer = self._buffer + "\r\n" + line
-		self._json_state = self._json_state + sum(1 for i in line if i == '{') - sum(1 for i in line if i == '}')
-		if self._json_state == 0:
-			reply = self.operate()
-			self._buffer = ""
-			if reply != None:
-				self.sendLine(reply)
+        self._buffer = self._buffer + "\r\n" + line
+        self._json_state = self._json_state + sum(1 for i in line if i == '{') - sum(1 for i in line if i == '}')
+        if self._json_state == 0:
+            reply = self.operate()
+            self._buffer = ""
+            if reply != None:
+                self.sendLine(reply)
 
 class ONPFactory(Factory):
     def buildProtocol(self, address):
@@ -47,7 +47,7 @@ def start_server():
     config = Config()
     factory = ONPFactory()
     if config.ssl_enabled:
-	    reactor.listenSSL(config.port, factory, ssl.DefaultOpenSSLContextFactory(config.ssl_private_key, config.ssl_certificate))
+        reactor.listenSSL(config.port, factory, ssl.DefaultOpenSSLContextFactory(config.ssl_private_key, config.ssl_certificate))
     else:
         reactor.listenTCP(config.port, factory)
     reactor.run()
