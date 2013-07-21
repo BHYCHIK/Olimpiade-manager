@@ -209,9 +209,13 @@ function clear_passw(form) {
 
 function success(form) {
 	var cgi_str = url + "?";
-	for (key in form) if (form[key] && /^u_/.test(form[key])) {
-		if (form[key].value != "")
-			cgi_str += key + "=" + form[key].value + "&";
+	for (key in form) if (form[key] && /^u_/.test(form[key].name)) {
+		if (form[key].value != "") {
+			var f_key = form[key].name, f_value = form[key].value;
+			if (f_key === "u_passw_conf") continue;
+			if (f_key === "u_sex" && !form[key].checked) continue;
+			cgi_str += f_key + "=" + f_value + "&";
+		}
 	}
 	$.getJSON(cgi_str.replace(/&$/, ""), check_results)
 		.fail(function( jqxhr, textStatus, error ) {
