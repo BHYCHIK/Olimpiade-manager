@@ -144,6 +144,7 @@ function validate_passw($tr) {
 
 function validate_input(e) {
 	var $tr = $(this).parent().parent();
+    if ($(this).attr("name") === "u_sex") $tr = $tr.parent();
 	var passw_mask = "u_passw_conf";
 	var pirate = true;
 	var msg = msg_type_t.correct_field;

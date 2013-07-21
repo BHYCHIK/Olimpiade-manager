@@ -1,13 +1,18 @@
-.login_box {
+#user_box {
 	font-size: 12pt;
 	text-align: left;
 }
 
-	.login_box tr:not(:last-child) td:first-child {
-		font-weight: bold;
-	}
+    #user_box #login_box tr:not(:last-child) td:first-child {
+        font-weight: bold;
+    }
 
-	.login_box tr:last-child {
-		font-size: 10pt;
-		text-align: right;
-	}
+    #user_box #login_box #sign_in {
+        font-size: 10pt;
+        text-align: right;
+    }
+
+    #user_box #login_box #sign_in #remember_me {
+        font-size: 20pt;
+        background-color: red;
+    }

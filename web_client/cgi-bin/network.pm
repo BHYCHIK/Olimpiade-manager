@@ -81,7 +81,6 @@ sub recv_json {
 	eval {
 		$SIG{ ALRM } = sub { die "Timeout!\n"; };
 		alarm $timeout;
-		my $remote = $self->{ socket };
 		$self->{ socket }->recv($data, $config->{ data_max_len });
 		$self->{ debugger }->log("Data recieved: ", $data) 
 			if $self->{ debugger };
