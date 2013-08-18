@@ -20,16 +20,20 @@ class ONP(LineReceiver):
         self._json_state = 0 # is opened - closed figure brackets
 
     def operate(self):
+        logger.Logger().debug("Proccessing message: %s" % self._buffer);
         try:
             request = json.loads(self._buffer)
         except ValueError:
+            logger.Logger().warn("Invalid json came from %s" % self.clientAddress)
             return request_not_valid_json()
         if not isinstance(request, dict):
             return request_not_valid_json()
         if request.get("id", None) is None:
+            logger.Logger().warn("No id parametr from %s" % self.clientAddress)
             return no_id_parametr()
         f_name = request.get("cmd", None)
         if f_name is None or f_name not in api_functions:
+            logger.Logger().warn("Unkown api function %s in request from %s" % (f_name, self.clientAddress) )
             return unknown_api_function(request)
         return api_functions[f_name](request)
 
