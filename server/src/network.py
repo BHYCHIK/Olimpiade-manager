@@ -9,6 +9,7 @@ from twisted.internet import ssl, reactor
 from config import Config
 from error_handlers import *
 from onp_api import *
+import logger
 import json
 
 # ONP - Olympiade network protocol
@@ -25,9 +26,11 @@ class ONP(LineReceiver):
             return request_not_valid_json()
         if not isinstance(request, dict):
             return request_not_valid_json()
+        if request.get("id", None) is None:
+            return no_id_parametr()
         f_name = request.get("cmd", None)
         if f_name is None or f_name not in api_functions:
-            return unknown_api_function()
+            return unknown_api_function(request)
         return api_functions[f_name](request)
 
     def lineReceived(self, line):
@@ -44,10 +47,12 @@ class ONPFactory(Factory):
         return ONP(address)
 
 def start_server():
-    config = Config()
+    conf = Config()
     factory = ONPFactory()
-    if config.ssl_enabled:
-        reactor.listenSSL(config.port, factory, ssl.DefaultOpenSSLContextFactory(config.ssl_private_key, config.ssl_certificate))
+    if conf.ssl_enabled:
+        reactor.listenSSL(conf.port, factory, ssl.DefaultOpenSSLContextFactory(conf.ssl_private_key, conf.ssl_certificate))
+        logger.Logger().info("Server started in ssl mode on port %d" % conf.port)
     else:
-        reactor.listenTCP(config.port, factory)
+        reactor.listenTCP(conf.port, factory)
+        logger.Logger().info("Server started in non-ssl mode on port %d" % conf.port)
     reactor.run()
