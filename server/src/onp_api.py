@@ -22,7 +22,7 @@ def onp_register_person(request):
     conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
     cur = conn.cursor()
 
-    sql = "INSERT INTO person(first_name, second_name, surname, gender, email, date_of_birth, desciption, address, phone) VALUES(%(first_name)s, %(second_name)s, %(surname)s, %(gender)s, %(email)s, %(date_of_birth)s, %(description)s, %(address)s, %(phone)s)"
+    sql = "INSERT INTO person(first_name, second_name, surname, gender, email, date_of_birth, description, address, phone) VALUES(%(first_name)s, %(second_name)s, %(surname)s, %(gender)s, %(email)s, %(date_of_birth)s, %(description)s, %(address)s, %(phone)s)"
 
     cur.execute(sql, request)
     inserted_id = conn.insert_id()

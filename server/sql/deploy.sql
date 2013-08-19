@@ -19,7 +19,7 @@ CREATE  TABLE IF NOT EXISTS `iu7_step`.`person` (
   `gender` ENUM('male', 'female') NOT NULL ,
   `email` VARCHAR(128) NOT NULL ,
   `date_of_birth` DATE NOT NULL ,
-  `desciption` TEXT NOT NULL ,
+  `description` TEXT NOT NULL ,
   `address` TEXT NOT NULL ,
   `phone` VARCHAR(20) NOT NULL ,
   PRIMARY KEY (`id`) )
