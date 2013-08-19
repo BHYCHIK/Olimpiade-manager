@@ -9,3 +9,6 @@ def unknown_api_function(request):
 
 def no_id_paramter():
     return '{"error_code": 3, "error_text": "No id parametr"}'
+
+def not_enougth_args(request):
+    return '{"error_code": 4, "error_text": "No enough parametr", id: %d}' % request["id"]

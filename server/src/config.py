@@ -13,6 +13,11 @@ class Config:
 
     daemonize = False
 
+    db_host = "localhost"
+    db_user = "iu7_dbuser"
+    db_pass = "krakazabra2k"
+    db_name = "iu7_step"
+
     ssl_enabled = False
     ssl_private_key = "ssl/cert.key"
     ssl_certificate = "ssl/cert.crt"
