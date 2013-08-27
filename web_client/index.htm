@@ -4,28 +4,23 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link href="/style/main.css" rel="stylesheet" type="text/css">
+	<link href="/style/registration.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript" src="/js/jquery-1.10.2.min.js"></script>
+	<script type="text/javascript" src="/js/register.js"></script>
+	<script type="text/javascript" src="/js/main.js"></script>
 </head>
 <body>
-    <div id="user_box">
-	<div id="login_box">
-		<table>
-			<tr><td>Логин:</td><td><input type="text" name="u_login"></td></tr>
-			<tr><td>Пароль:</td><td><input type="text" name"u_passw"=""></td></tr>
-			<tr><td colspan="2"><div id="sign_in">
-                <label><input type="checkbox" checked="true" id="remember_me">Запомнить</label>
-                <button>Войти</button></div>
-            </td></tr>
-            <tr><td colspan="2">
-                <a href="/html/registration.htm">Регистрация</a>
-            </td></tr>
-		</table>
-	</div>
-    <div id="user_info_box" style="display: none;">
-        <table>
-            <tr><td>Вы вошли как</td><td><a></a></td></tr>
-        </table>
-    </div>
-    </div>
+    <table id='main_area'>
+        <tr id='header_row'>
+            <td colspan='2'><div id='header_layout'></div></td>
+        </tr>
+        <tr id='content_row'>
+            <td id='content_col'><div id='content_layout'></div></td>
+            <td id='menu_col'><div id='menu_layout'></div></td>
+        </tr>
+        <tr id='footer_row'>
+            <td colspan='2'><div id='footer_layout'></div></td>
+        </tr>
+    </table>
 </body>
 </html>

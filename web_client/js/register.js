@@ -1,39 +1,45 @@
-var url = "/cgi-bin/register_person.pl";
-var form_selector = "form.registration_form";
+var Registration = {};
 
-function prepare_vars() {
-	window.empty_field_msg = "Заполните обязательное поле";
-	window.incorrect_email = "Неверный адрес электронной почты. " +
+Registration.url = "/cgi-bin/register_person.pl";
+Registration.form_selector = "form.registration_form";
+
+Registration.prepare_vars = function () {
+	Registration.empty_field_msg = "Заполните обязательное поле";
+	Registration.incorrect_email = "Неверный адрес электронной почты. " +
 		"Пример:&nbsp;<div class=\"sample\">sample@mail.ru</div>";
-	window.correct_field_msg = "Ок";
-	window.empty_field_class = "empty_field";
-	window.incorrect_email_class = "incorrect_email";
-	window.incorrect_login_class = "incorrect_login";
-	window.correct_field_class = "ok_field";
-	window.note_sign = "<span class=\"note_sign\">" +
+	Registration.correct_field_msg = "Ок";
+	Registration.empty_field_class = "empty_field";
+	Registration.incorrect_email_class = "incorrect_email";
+	Registration.incorrect_login_class = "incorrect_login";
+	Registration.correct_field_class = "ok_field";
+	Registration.note_sign = "<span class=\"note_sign\">" +
 		"&nbsp;*&nbsp;</span>";
 };
 
-var msg_type_t = {
+Registration.msg_type_t = {
 	correct_field:    0,
 	empty_field:      1,
 	incorrect_email:  2,
 };
 
-function get_msg(msg_type) {
+Registration.keys = ['first_name', 'second_name', 'surname', 'gender',
+                     'date_of_birth', 'address', 'phone', 'email',
+                     'description'];
+
+Registration.get_msg = function (msg_type) {
 	var msg_class, msg_text;
 	switch (msg_type) {
-		case msg_type_t.correct_field:
-			msg_text = window.correct_field_msg;
-			msg_class = window.correct_field_class;
+		case Registration.msg_type_t.correct_field:
+			msg_text = Registration.correct_field_msg;
+			msg_class = Registration.correct_field_class;
 			break;
-		case msg_type_t.empty_field:
-			msg_text = window.empty_field_msg;
-			msg_class = window.empty_field_class;
+		case Registration.msg_type_t.empty_field:
+			msg_text = Registration.empty_field_msg;
+			msg_class = Registration.empty_field_class;
 			break;
-		case msg_type_t.incorrect_email:
-			msg_text = window.incorrect_email;
-			msg_class = window.incorrect_email_class;
+		case Registration.msg_type_t.incorrect_email:
+			msg_text = Registration.incorrect_email;
+			msg_class = Registration.incorrect_email_class;
 			break;
 		default:
 			return "Error msg_type: " + msg_type;
@@ -42,17 +48,17 @@ function get_msg(msg_type) {
 			msg_text + "</div>";
 }
 
-function has_type($elem, msg_type) {
+Registration.has_type = function ($elem, msg_type) {
 	var class_name;
 	switch (msg_type) {
-		case msg_type_t.correct_field:
-			class_name = window.correct_field_class;
+		case Registration.msg_type_t.correct_field:
+			class_name = Registration.correct_field_class;
 			break;
-		case msg_type_t.empty_field:
-			class_name = window.empty_field_class;
+		case Registration.msg_type_t.empty_field:
+			class_name = Registration.empty_field_class;
 			break;
-		case msg_type_t.incorrect_email:
-			class_name = window.incorrect_email_class;
+		case Registration.msg_type_t.incorrect_email:
+			class_name = Registration.incorrect_email_class;
 			break;
 		default:
 			return false;
@@ -65,7 +71,7 @@ function has_type($elem, msg_type) {
 	return false;
 }
 
-function change_msg($tr, msg_type) {
+Registration.change_msg = function ($tr, msg_type) {
 	var $td = $tr.find(".msg"),
 		$div, pirate = false;
 	if (!$td.length) $td = $tr;	// td already passed
@@ -79,32 +85,32 @@ function change_msg($tr, msg_type) {
 		$td.append(get_msg(msg_type));
 }
 
-function remove_msg($tr) {
+Registration.remove_msg = function ($tr) {
 	var $td = $tr.find(".msg"), $div;
 	if (!$td.length) $td = $tr;
 	if (($div = $td.find("div")).length)
 		$div.remove();
 }
 
-function prepare_table() {
+Registration.prepare_table = function () {
     var today = new Date();
     var m = today.getMonth() + 1;
     today = today.getFullYear() + "-" + (m > 9 ? m : "0" + m) + "-" + today.getDate();
-	form_selector.find("tr.required td:first-child").each(function() {
-		$(this).html($(this).html() + window.note_sign); });
-	form_selector.find("tr.required").append(
+	Registration.form_selector.find("tr.required td:first-child").each(function() {
+		$(this).html($(this).html() + Registration.note_sign); });
+	Registration.form_selector.find("tr.required").append(
 			"<td class=\"msg\"></td>");
-	form_selector.find("tr.extra").append(
+	Registration.form_selector.find("tr.extra").append(
 			"<td class=\"msg\"></td>");
-	form_selector.find("tr.optional").append("<td></td>");
-	form_selector.find("tr.other").append("<td></td>");
-    form_selector.find(".send_btn").click(validate_form);
-    form_selector.find(".clear_form_btn").click(clear_form);
-    form_selector.find("input").keydown(validate_input);
-    form_selector.find("input[type='date']").attr("value", today).attr("max", today);
+	Registration.form_selector.find("tr.optional").append("<td></td>");
+	Registration.form_selector.find("tr.other").append("<td></td>");
+    Registration.form_selector.find(".send_btn").click(Registration.validate_form);
+    Registration.form_selector.find(".clear_form_btn").click(Registration.clear_form);
+    Registration.form_selector.find("input").keydown(Registration.validate_input);
+    Registration.form_selector.find("input[type='date']").attr("value", today).attr("max", today);
 }
 
-function validate_input(e) {
+Registration.validate_input = function (e) {
     var name = $(this).attr("name");
     var text = $(this).val();
     if (name === 'email') {
@@ -120,52 +126,58 @@ function validate_input(e) {
     }
 }
 
-function clear_form() {
-    console.log("clear");
+Registration.clear_form = function () {
+    var keys = Registration.keys;
+    for (var i = 0; i < keys.length; i++) {
+        var field = form.find('[name="' + keys[i] + '"]');
+        if (keys[i] === 'gender') {
+            field.each(function () { $(this)[0].checked = false; });
+        } else {
+            field[0].val('');
+        }
+    }
 }
 
-function validate_form() {
+Registration.validate_form = function () {
 	// Empty fields at first
     var ok = true;
-	form_selector.find("tr.required .input_box").each( function() {
+	Registration.form_selector.find("tr.required .input_box").each( function() {
         if (!/\S/.test($(this).val())) {
             ok = false;
-            change_msg($(this).parent().parent(), msg_type_t.empty_field);
+            Registration.change_msg($(this).parent().parent(), Registration.msg_type_t.empty_field);
         } else {
-            remove_msg($(this).parent().parent());
+            Registration.remove_msg($(this).parent().parent());
         }
 	});
 	if (!ok) return;
     
     ok = false;
-    form_selector.find(".gender_radio").each( function() {
+    Registration.form_selector.find(".gender_radio").each( function() {
         if (ok) return;
         if ($(this)[0].checked) ok = true; });
     if (!ok) {
-        change_msg(form_selector.find(".gender_radio").parent().parent().parent(),
-                   msg_type_t.empty_field);
+        change_msg(Registration.form_selector.find(".gender_radio").parent().parent().parent(),
+                   Registration.msg_type_t.empty_field);
         return;
     } else {
-        remove_msg(form_selector.find(".gender_radio").parent().parent().parent());
+        remove_msg(Registration.form_selector.find(".gender_radio").parent().parent().parent());
     }
     
-    form_selector.find("[name='email']").each( function() {
+    Registration.form_selector.find("[name='email']").each( function() {
         if (!ok) return;
         ok = /^\w[\w.\d]*@([\w\d]*\.)+[\w\d]+$/.test($(this).val());
-        if (!ok) change_msg($(this).parent().parent(), msg_type_t.incorrect_email);
-        else remove_msg($(this).parent().parent());
+        if (!ok) Registration.change_msg($(this).parent().parent(), Registration.msg_type_t.incorrect_email);
+        else Registration.remove_msg($(this).parent().parent());
     });
     if (!ok) 
         return;
 
-    success(form_selector);
+    success(Registration.form_selector);
 }
 
-function success(form) {
+Registration.success = function (form) {
 	var cgi_str = url + "?";
-    var keys = ['first_name', 'second_name', 'surname', 'gender',
-                'date_of_birth', 'address', 'phone', 'email',
-                'description'];
+    var keys = Registration.keys;
     for (var i = 0; i < keys.length; i++) {
         var field = form.find('[name="' + keys[i] + '"]')[0];
         if (field.value != '') {
@@ -173,6 +185,7 @@ function success(form) {
             cgi_str += keys[i] + '=' + field.value + '&';
         }
     }
+    console.log(cgi_str);
 	$.getJSON(cgi_str.replace(/&$/, ""), check_results)
 		.fail(function( jqxhr, textStatus, error ) {
 			var err = textStatus + ', ' + error;
@@ -180,12 +193,12 @@ function success(form) {
 		});
 }
 
-function check_results(data) {
+Registration.check_results = function (data) {
 	console.log(data);
 }
 
-window.onload = function() {
-    form_selector = $(form_selector);
-	prepare_vars();
-	prepare_table();
+Registration.show = function () {
+    Registration.form_selector = $(Registration.form_selector);
+	Registration.prepare_vars();
+	Registration.prepare_table();
 };
