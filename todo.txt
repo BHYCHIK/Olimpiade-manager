@@ -1,6 +1,7 @@
-1.  unknown
-2.  unknown
-3.  unknown
-4.  http://dev.iu7.bmstu.ru/trac/corporate_stepiu7/ticket/4
-5.  Необходима возможность автоматического заведения папки в /var/log, 
+1.  http://dev.iu7.bmstu.ru/trac/corporate_stepiu7/ticket/4
+2.  Необходима возможность автоматического заведения папки в /var/log, 
         при чем от имени юзера.
+3.  http://dev.iu7.bmstu.ru/trac/corporate_stepiu7/ticket/5
+4.  Необходима документация к апишке. Хотя бы в 2х строчках. Немножко сложно
+        выяснять это по тексту.
+5.  Зачем поле description, person table делать not null???? Убрать.

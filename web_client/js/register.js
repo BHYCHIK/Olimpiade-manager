@@ -1,17 +1,12 @@
 var url = "/cgi-bin/register_person.pl";
+var form_selector = "form.registration_form";
 
 function prepare_vars() {
 	window.empty_field_msg = "Заполните обязательное поле";
-	window.incorrect_passw = "Пароли не совпадают";
 	window.incorrect_email = "Неверный адрес электронной почты. " +
 		"Пример:&nbsp;<div class=\"sample\">sample@mail.ru</div>";
-	window.incorrect_login = "Неверный формат логина. Логин может " +
-		"состоять из цифр, букв и знака подчеркивания. Он не может " +
-		"начинаться c цифры. Пример:&nbsp;<div class=\"sample\">" +
-		"_sample_login_111</div>";
 	window.correct_field_msg = "Ок";
 	window.empty_field_class = "empty_field";
-	window.incorrect_passw_class = "incorrect_passw";
 	window.incorrect_email_class = "incorrect_email";
 	window.incorrect_login_class = "incorrect_login";
 	window.correct_field_class = "ok_field";
@@ -20,13 +15,10 @@ function prepare_vars() {
 };
 
 var msg_type_t = {
-	correct_field:   0,
-	empty_field:     1,
-	incorrect_passw: 2,
-	incorrect_email: 3,
-	incorrect_login: 4
+	correct_field:    0,
+	empty_field:      1,
+	incorrect_email:  2,
 };
-var form_selector = "form.registration_form";
 
 function get_msg(msg_type) {
 	var msg_class, msg_text;
@@ -39,17 +31,9 @@ function get_msg(msg_type) {
 			msg_text = window.empty_field_msg;
 			msg_class = window.empty_field_class;
 			break;
-		case msg_type_t.incorrect_passw:
-			msg_text = window.incorrect_passw;
-			msg_class = window.incorrect_passw_class;
-			break;
 		case msg_type_t.incorrect_email:
 			msg_text = window.incorrect_email;
 			msg_class = window.incorrect_email_class;
-			break;
-		case msg_type_t.incorrect_login:
-			msg_text = window.incorrect_login;
-			msg_class = window.incorrect_login_class;
 			break;
 		default:
 			return "Error msg_type: " + msg_type;
@@ -67,14 +51,8 @@ function has_type($elem, msg_type) {
 		case msg_type_t.empty_field:
 			class_name = window.empty_field_class;
 			break;
-		case msg_type_t.incorrect_passw:
-			class_name = window.incorrect_passw_class;
-			break;
 		case msg_type_t.incorrect_email:
 			class_name = window.incorrect_email_class;
-			break;
-		case msg_type_t.incorrect_login:
-			class_name = window.incorrect_login_class;
 			break;
 		default:
 			return false;
@@ -109,115 +87,92 @@ function remove_msg($tr) {
 }
 
 function prepare_table() {
-	$(form_selector + " tr.required td:first-child")
-		.each(function() {
-			$(this).html($(this).html() + window.note_sign);
-		});
-	$(form_selector + " tr.required").append(
+    var today = new Date();
+    var m = today.getMonth() + 1;
+    today = today.getFullYear() + "-" + (m > 9 ? m : "0" + m) + "-" + today.getDate();
+	form_selector.find("tr.required td:first-child").each(function() {
+		$(this).html($(this).html() + window.note_sign); });
+	form_selector.find("tr.required").append(
 			"<td class=\"msg\"></td>");
-	$(form_selector + " tr.extra").append(
+	form_selector.find("tr.extra").append(
 			"<td class=\"msg\"></td>");
-	$(form_selector + " tr.optional").append("<td></td>");
-	$(form_selector + " tr.other").append("<td></td>");
-	$(form_selector).attr("onsubmit",
-		"if (!validate_form(this)) clear_passw(this); return false;");
-	$(form_selector + " input").change(validate_input);
-}
-
-function validate_passw($tr) {
-	var selector = form_selector + " tr.required>td>.passw_textbox";
-	var passwords = [];
-	$(selector).each(function() {
-		if ($(this).val() != "") passwords.push($(this).val());
-	});
-	var msg = -1;
-	if (passwords.length == 0) 
-		msg = msg_type_t.empty_field;
-	else if (passwords[0] != passwords[1])
-		msg = msg_type_t.incorrect_passw;
-	else
-		msg = msg_type_t.correct_field;
-	$(selector).each(function() {
-		change_msg($(this).parent().parent(), msg); 
-	});
+	form_selector.find("tr.optional").append("<td></td>");
+	form_selector.find("tr.other").append("<td></td>");
+    form_selector.find(".send_btn").click(validate_form);
+    form_selector.find(".clear_form_btn").click(clear_form);
+    form_selector.find("input").keydown(validate_input);
+    form_selector.find("input[type='date']").attr("value", today).attr("max", today);
 }
 
 function validate_input(e) {
-	var $tr = $(this).parent().parent();
-    if ($(this).attr("name") === "u_sex") $tr = $tr.parent();
-	var passw_mask = "u_passw_conf";
-	var pirate = true;
-	var msg = msg_type_t.correct_field;
-	if ($tr.attr("class") == "required" && 
-		$(this).val() == "" && 
-		passw_mask.indexOf($(this).attr("name")) != 0) {
-		msg = msg_type_t.empty_field;
-	} else if (passw_mask.indexOf($(this).attr("name")) == 0) {
-		validate_passw($tr);
-		pirate = false;
-	} else if ($(this).attr("name") == "u_login") {
-		if (!/[a-zA-Z_][\w_]*/.test($(this).val()))
-			msg = msg_type_t.incorrect_login;
-	} else if ($(this).attr("name") == "u_email") {
-		var regexp = /^[\w\.\-_]+@([a-zA-Z_]\w*\.)+[a-zA-Z_](\w*)$/;
-		if ($(this).val() != "") {
-			if (!regexp.test($(this).val()))
-				msg = msg_type_t.incorrect_email;
-		} else {
-			pirate = false;
-			remove_msg($tr);
-		}
-	}
-	if (pirate)
-		change_msg($tr, msg);
+    var name = $(this).attr("name");
+    var text = $(this).val();
+    if (name === 'email') {
+        return;
+    }
+    if ($(this).hasClass("no_spaces") && e.which === 32) { 
+        e.preventDefault();
+        return;
+    }
+    if (name === 'phone' && e.which != 9 && (e.which < 48 || e.which > 57)) {
+        e.preventDefault();
+        return;
+    }
 }
 
-function validate_form(form) {
-	var ok = true;
-
-	// Ampty fields at first
-	$(form_selector + " tr.required>td.msg:empty").each( function() {
-		ok = false;
-		change_msg($(this).parent(), msg_type_t.empty_field);
-	});
-	if (!ok) return ok;
-
-	// Then -- incorrect required fields
-	$(form_selector + " tr.required>td.msg>div").each( function() {
-		if (!$(this).hasClass(window.correct_field_class)) ok = false;
-	});
-	if (!ok) return ok;
-
-	// At last -- other incorrect fields
-	$(form_selector + " tr.extra>td.msg").each( function() {
-		if (!($(this).is(":empty") || 
-				$(this).find("div.ok_field").length != 0))
-			ok = false;
-	});
-	if (ok)
-		success(form);
-	return ok;
+function clear_form() {
+    console.log("clear");
 }
 
-function clear_passw(form) {
-	form.u_passw.value = "";
-	form.u_passw_conf.value = "";
-	$(form_selector + " tr.required>td>input.passw_textbox").each(
-		function() { 
-		change_msg($(this).parent().parent(), msg_type_t.empty_field); 
+function validate_form() {
+	// Empty fields at first
+    var ok = true;
+	form_selector.find("tr.required .input_box").each( function() {
+        if (!/\S/.test($(this).val())) {
+            ok = false;
+            change_msg($(this).parent().parent(), msg_type_t.empty_field);
+        } else {
+            remove_msg($(this).parent().parent());
+        }
 	});
+	if (!ok) return;
+    
+    ok = false;
+    form_selector.find(".gender_radio").each( function() {
+        if (ok) return;
+        if ($(this)[0].checked) ok = true; });
+    if (!ok) {
+        change_msg(form_selector.find(".gender_radio").parent().parent().parent(),
+                   msg_type_t.empty_field);
+        return;
+    } else {
+        remove_msg(form_selector.find(".gender_radio").parent().parent().parent());
+    }
+    
+    form_selector.find("[name='email']").each( function() {
+        if (!ok) return;
+        ok = /^\w[\w.\d]*@([\w\d]*\.)+[\w\d]+$/.test($(this).val());
+        if (!ok) change_msg($(this).parent().parent(), msg_type_t.incorrect_email);
+        else remove_msg($(this).parent().parent());
+    });
+    if (!ok) 
+        return;
+
+    success(form_selector);
 }
 
 function success(form) {
 	var cgi_str = url + "?";
-	for (key in form) if (form[key] && /^u_/.test(form[key].name)) {
-		if (form[key].value != "") {
-			var f_key = form[key].name, f_value = form[key].value;
-			if (f_key === "u_passw_conf") continue;
-			if (f_key === "u_sex" && !form[key].checked) continue;
-			cgi_str += f_key + "=" + f_value + "&";
-		}
-	}
+    var keys = ['first_name', 'second_name', 'surname', 'gender',
+                'date_of_birth', 'address', 'phone', 'email',
+                'description'];
+    for (var i = 0; i < keys.length; i++) {
+        var field = form.find('[name="' + keys[i] + '"]')[0];
+        if (field.value != '') {
+            if (keys[i] === 'gender' && !field.checked) continue;
+            cgi_str += keys[i] + '=' + field.value + '&';
+        }
+    }
 	$.getJSON(cgi_str.replace(/&$/, ""), check_results)
 		.fail(function( jqxhr, textStatus, error ) {
 			var err = textStatus + ', ' + error;
@@ -230,6 +185,7 @@ function check_results(data) {
 }
 
 window.onload = function() {
+    form_selector = $(form_selector);
 	prepare_vars();
 	prepare_table();
 };
