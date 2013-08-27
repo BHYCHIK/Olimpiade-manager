@@ -1,4 +1,6 @@
-1. unknown
-2. unknown
-3. unknown
-4. http://dev.iu7.bmstu.ru/trac/corporate_stepiu7/ticket/4
+1.  unknown
+2.  unknown
+3.  unknown
+4.  http://dev.iu7.bmstu.ru/trac/corporate_stepiu7/ticket/4
+5.  Необходима возможность автоматического заведения папки в /var/log, 
+        при чем от имени юзера.
