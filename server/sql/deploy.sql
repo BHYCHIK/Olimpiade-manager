@@ -318,6 +318,7 @@ CREATE  TABLE IF NOT EXISTS `iu7_step`.`account` (
   `login` VARCHAR(45) NULL ,
   `password_hash` VARCHAR(128) NULL ,
   `person_id` INT UNSIGNED NULL ,
+  `admin_priv` TINYINT(1) NOT NULL DEFAULT false ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_account_to_people` (`person_id` ASC) ,
   CONSTRAINT `fk_account_to_people`

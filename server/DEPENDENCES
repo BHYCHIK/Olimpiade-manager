@@ -1,2 +1,3 @@
-twisted
-mysqldb
+python-twisted
+python-mysqldb
+python-memcache

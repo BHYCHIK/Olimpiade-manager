@@ -32,6 +32,7 @@ class ONP(LineReceiver):
             logger.Logger().warn("No id parametr from %s" % self.clientAddress)
             return no_id_parametr()
         f_name = request.get("cmd", None)
+        request["ip_addr"] = self.clientAddress
         if f_name is None or f_name not in api_functions:
             logger.Logger().warn("Unkown api function %s in request from %s" % (f_name, self.clientAddress) )
             return unknown_api_function(request)

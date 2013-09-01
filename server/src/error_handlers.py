@@ -16,5 +16,11 @@ def not_enougth_args(request):
 def sql_error(request):
     return '{"error_code": 5, "error_text": "Sql error", "id": %d}' % int(request["id"])
 
+def incorrect_account(request):
+    return '{"error_code": 6, "error_text": "Incorrect login or password", "id": %d}' % int(request["id"])
+
+def internal_error(request):
+    return '{"error_code": 500, "error_text": "Internal server error", "id": %d}' % int(request["id"])
+
 def unknown_error():
     return '{"error_code": 999, "error_text": "Unknown error"}'

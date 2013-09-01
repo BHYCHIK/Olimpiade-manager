@@ -18,6 +18,9 @@ class Config:
     db_pass = "krakazabra2k"
     db_name = "iu7_step"
 
+    memcached_addr = "127.0.0.1:11211"
+    session_timeout = 36000
+
     ssl_enabled = False
     ssl_private_key = "ssl/cert.key"
     ssl_certificate = "ssl/cert.crt"
