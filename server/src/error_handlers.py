@@ -7,7 +7,7 @@ def request_not_valid_json():
 def unknown_api_function(request):
     return '{"error_code": 2, id: %d, "error_text": "Unknown api function or no cmd field in request"}' % request["id"]
 
-def no_id_paramter():
+def no_id_parametr():
     return '{"error_code": 3, "error_text": "No id parametr"}'
 
 def not_enougth_args(request):
