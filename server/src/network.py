@@ -42,10 +42,10 @@ class ONP(LineReceiver):
         self._buffer = self._buffer + "\r\n" + line
         self._json_state = self._json_state + sum(1 for i in line if i == '{') - sum(1 for i in line if i == '}')
         if self._json_state == 0:
-            #try:
-            reply = self.operate()
-            #except Exception:
-             #   reply = unknown_error()
+            try:
+                reply = self.operate()
+            except Exception:
+                reply = unknown_error()
             self._buffer = ""
             if reply != None:
                 self.sendLine(reply)
