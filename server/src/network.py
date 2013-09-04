@@ -45,6 +45,7 @@ class ONP(LineReceiver):
             try:
                 reply = self.operate()
             except Exception:
+                logger.Logger().error("UNKNOWN ERROR HAPPEND")
                 reply = unknown_error()
             self._buffer = ""
             if reply != None:
