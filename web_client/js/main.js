@@ -1,54 +1,52 @@
 var js_dir = '/js/',
-    html_dir = '/html';
-var source_reader = '/cgi-bin/read_sources.pl';
+    html_dir = '/html',
+    cgi = "/cgi-bin/bmstu-fcgi.pl";
 
-var actions = {
-    __container: 'content_layout',
-    register_person: {
-        source: 'registration.htm',
-        handler: Registration.show,
-        data: undefined
-    }
+window.configuration = {
+    content: '',
+    containers: {}
 };
-
-var menu_container = {
-    __container: 'menu_layout',
-    login_form: {
-        source: 'user_box.htm',
-        data: undefined
-    }
-};
-
-window.action = actions.register_person;
 
 window.onload = function() {
-    // Check for the various File API support.
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
-        // All the File APIs are supported.
-        build_content();
-        build_menu();
+    prepare_containers();
+    Menu.build();
+    updatePage();
+}
+
+function prepare_containers() {
+    var a = window.configuration.containers;
+    a.content = $("div#content_layout");
+    a.menu = $("div#menu_layout");
+    a.header = $("div#header_layout");
+    a.footer = $("div#footer_layout");
+}
+
+function updatePage(force_update) {
+    var act = 'main';
+    if (window.location.hash != "") 
+        act = window.location.hash.replace(/^#(.+)$/, "$1");
+    if (!Data[act]) {
+        redirectPage('#main');
+        return;
+    } 
+    if (act != window.configuration.content || force_update) {
+        // Remove old content
+
+    }
+}
+
+function build(act) {
+
+}
+
+function redirectPage(url){
+    newUrlParts = url.split("#");
+    currentUrlParts = window.location.href.split("#");
+    window.location.href = url; 
+    if(newUrlParts[0] == currentUrlParts[0]) {
+        console.log("changing");
+        window.location.reload(true);
     } else {
-        alert('The File APIs are not fully supported in your browser.');
-    }
-}
-
-function build_content() {
-
-}
-
-function build_menu() {
-    var url = source_reader + "?";
-    var i = 0;
-    for (var form in menu_container) if (!/^__/.test(form)) {
-        if (!menu_container[form].data) {
-            i++; url += form + "=" + menu_container[form].source + "&";
-        }
-    }
-    if (i) {
-        $.getJSON(url.replace(/&$/, ""), function (data) {
-            for (var key in data) {
-                menu_container[key].data = data[key];
-            }
-        });
+        updatePage();
     }
 }

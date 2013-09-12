@@ -1,15 +1,17 @@
-Data = {};
+Data = {
+    main: {
+        div_class_name: 'main',
+        container: 'content',
+    },
+    register: {
+        div_class_name: 'registration_form',
+        handler: Registration.build,
+        container: 'content',
+    },
+};
 
-Data.divs = ['register', 'login', 'userinfo'];
+Data.main.data = 'Hello!';
 
-Data.userinfo.div_class_name = 'user_info_box';
-Data.userinfo.data = 
-'    <table>' +
-'        <tr><td>Вы вошли как</td><td><a></a></td></tr>' +
-'    </table>';
-
-
-Data.login.div_class_name = 'login_box';
 Data.login.data = 
 '    <table>' +
 '        <tr><td>Логин:</td><td><input type="text" name="u_login"></td></tr>' +
@@ -23,7 +25,6 @@ Data.login.data =
 '        </td></tr>' +
 '    </table>';
 
-Data.register.div_class_name = 'registration_form';
 Data.register.data = 
 '    <form name="reg_form" method="post" class="registration_form"> ' +
 '    <h1>Регистрация нового пользователя</h1>' +
