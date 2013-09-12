@@ -240,7 +240,7 @@ CREATE  TABLE IF NOT EXISTS `iu7_step`.`score` (
   `work_id` INT UNSIGNED NOT NULL ,
   `expert_id` INT UNSIGNED NOT NULL ,
   `state` ENUM('uncomplete', 'complete') NOT NULL ,
-  `date` DATE NULL ,
+  `date` DATE NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_score_to_work` (`work_id` ASC) ,
   INDEX `fk_score_to_expert` (`expert_id` ASC) ,
