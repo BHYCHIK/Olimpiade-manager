@@ -9,12 +9,15 @@ use FCGI::ProcManager qw( pm_manage pm_pre_dispatch pm_write_pid_file pm_post_di
 use File::Basename qw( basename );
 use IO::Socket::INET;
 use IO::Socket::SSL;
+use Cache::Memcached;
 
 (my $basename = basename $0) =~ s/\.pl$//;
 my $pidfile = "$basename.pid";
 my $logfile;
+my $cache;
 
 my $config = {
+    WORK_DIR            => "/var/run/fcgi/",
     LISTEN_ADDR         => "/var/run/fcgi/$basename.socket",
     PIDFILE             => "/var/run/fcgi/$pidfile",
     THREADS_COUNT       => 4,
@@ -28,6 +31,9 @@ my $config = {
     PORT                => "5000",
     SSL_ENABLED         => 0,
     DATA_MAX_LEN        => 32 * 1024,
+    MEMCACHED_SERV_LIST             => ['127.0.0.1:11211'],
+    MEMCACHED_DEBUG                 => 0,
+    MEMCACHED_COMPRESS_THRESHOLD    => 10_000,
 };
 
 run();
@@ -35,27 +41,42 @@ run();
 ############################## Entry point ############################
 
 sub main_loop {
-    my ($uri, $params, $socket) = @_;
-    my $msg = _log("$uri?$params");
+    my ($uri, $params, $actions, $socket) = @_;
+    _log("$uri?$params");
     print "Content-Type: application/json\r\n\r\n";
-    print $msg;
+
+    my %p = $params =~ /(\w+)=([\w\d.@]+)&?/g;
+
+    return _err("Action is required") unless $p{ action };
+    return _err("Action not found") unless $actions->{ $p{ action } };
+
+    my $r = $actions->{ $p{ action } }->{ handler }->( $socket, \%p );
+    print to_json $r if ref $r eq 'HASH'
 }
 
 ############################ Actions ################################
 
-sub prepare_callback {
+sub prepare_callbacks {
+    my $actions = {};
+    
+    $actions->{ login }->{ handler } = \&act_login;
+    $actions->{ register_person }->{ handler } = \&act_register_person;
+    $actions->{ register_account }->{ handler } = \&act_register_account;
+    $actions->{ get_user_info }->{ handler } = \&act_get_user_info;
 
+    $actions;
 }
 
 sub act_register_person {
 
 }
 
-sub act_recister_account {
+sub act_register_account {
 
 }
 
 sub act_login {
+    my ($socket, $params) = @_;
 
 }
 
@@ -77,6 +98,16 @@ sub _log {
         print $msg unless $config->{ DAEMONZE };
     }
     $msg;
+}
+
+sub hash_to_str {
+    my $data = shift;
+    my $r = "";
+    for (keys %$data) {
+        $r .= "$_: $data->{ $_ }, ";
+    }
+    $r =~ s/, $//;
+    $r;
 }
 
 sub daemonize {
@@ -104,9 +135,10 @@ sub change_user {
 sub check_for_another_running_processes {
     if (-f $config->{ PIDFILE }) {
         if(open my $fhr,'<',$config->{ PIDFILE }) {
-            chomp (my $pid = <$fhr>);
-            if (kill 0,$pid) {
-                die "already running with pid $pid\n";
+            my $pid = <$fhr>;
+            if ($pid) {
+                chomp $pid;
+                die "already running with pid $pid\n" if kill 0, $pid;
             }
         }
     }
@@ -123,7 +155,7 @@ sub establish_connection {
     my $socket;
 	my $err = "Error while establishing connection to server " .
 			  "$config->{ HOST }:$config->{ PORT }: %s";
-    _log "$$: establishing connection to $config->{ HOST }:$config->{ PORT }";
+    _log("$$: establishing connection to $config->{ HOST }:$config->{ PORT }");
     if ($config->{ SSL_ENABLED }) {
         $socket = IO::Socket::SSL->new(
                 PeerHost    => $config->{ HOST },
@@ -142,6 +174,9 @@ sub establish_connection {
 
 sub send_json {
     my ($socket, $data) = @_;
+    if (ref $data eq 'HASH') {
+        $data->{ id } = rand 1000 unless $data->{ id };
+    }
     _log("Sending data:  $data");
     $socket->send($data);
 }
@@ -149,7 +184,9 @@ sub send_json {
 sub send_data {
     my ($socket, $data) = @_;
     $data = { data => $data } if ref($data) ne "HASH";
-    send_json($socket, to_json($data) . "\r\n");
+    $data = to_json($data);
+    $data =~ s/[\r\n]*$/\r\n/;
+    send_json($socket, $data);
 }
 
 sub recv_json {
@@ -162,13 +199,44 @@ sub recv_json {
 
 sub recv_data {
     my $data = recv_json(shift);
-    $data = decode_json $data if defined $data;
+    $data =~ s/[\r\n]*$//;
+    $data = from_json $data if defined $data;
     $data;
+}
+
+sub listen_socket {
+    my $socket = shift;
+    while (my $data = recv_data $socket) {
+        my $id = $data->{ id };
+        unless (defined $id) {
+            _err("Id is required: " . hash_to_str($data));
+            next;
+        }
+        $cache->set($basename . "_$data->{ id }", $data);
+    }
+}
+
+sub has_key {
+    my $key = shift;
+    return 1 if $cache->get($basename . "_$key");
+    return 0;
 }
 
 sub run {
     die "Run program as root!\n" if (getpwuid $>) ne 'root';
 
+    my $memcached = sub {
+        my $cache = new Cache::Memcached {
+                'servers'     => $config->{ MEMCACHED_SERV_LIST },
+                'debug'       => $config->{ MEMCACHED_DEBUG },
+                'compress_threshold' => $config->{ MEMCACHED_COMPRESS_THRESHOLD },
+        };
+        die _err "Unable to connect to Memcached" unless
+            $cache->set("test_" . rand $$ * 1000, 1);
+        $cache;
+    };
+
+    mkdir $config->{ WORK_DIR };
     umask 0;
     my $socket = FCGI::OpenSocket($config->{ LISTEN_ADDR }, 10) 
         or die "Can't open port $config->{ LISTEN_ADDR } for listening $!";
@@ -179,19 +247,33 @@ sub run {
     daemonize if $config->{ DAEMONIZE };
     pm_write_pid_file $config->{ PIDFILE };
 
+    my $server_socket = establish_connection;
+    my $actions = prepare_callbacks;
+
+    unless (fork) {
+        _log("Socket listener started: $$");
+        $cache = $memcached->();
+        return listen_socket $server_socket;
+    }
+
     _log("Manager started: $$");
 
-    change_user;
-    pm_manage( n_processes => $config->{THREADS_COUNT}, 
+    pm_manage( n_processes => $config->{ THREADS_COUNT }, 
                pm_title => $config->{ MANAGER_NAME } );
+    change_user;
     $0 = $config->{ WORKER_NAME };
     _log("Worker started: $$");
 
-    my $server_socket = establish_connection;
+    $cache = $memcached->();
+
+    while (1) {
+        sleep rand($$) % 5;
+        send_data($server_socket, {id => int(rand $$ * 9999), cmd => 'onp_ping'});
+    }
 
     while ($request->Accept() >= 0) {
         pm_pre_dispatch();
-        main_loop $ENV{DOCUMENT_URI}, $ENV{QUERY_STRING}, $socket;
+        main_loop $ENV{DOCUMENT_URI}, $ENV{QUERY_STRING}, $actions, $socket;
         pm_post_dispatch();
     }
     FCGI::CloseSocket($socket);
