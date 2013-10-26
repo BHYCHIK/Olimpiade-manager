@@ -14,6 +14,12 @@ class Logger:
                                  cls, *args, **kwargs)
         return cls._instance
 
+    def __init__(self):
+        conf = config.Config()
+        log_file_dir = os.path.dirname(conf.log_file)
+        if not os.path.isdir(log_file_dir):
+            os.makedirs(log_file_dir)
+
     def debug(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.debug:
