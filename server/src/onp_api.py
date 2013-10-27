@@ -93,6 +93,68 @@ def onp_get_people(request):
 
     return json.dumps(result)
 
+def onp_add_criteria_title(request):
+    if not _check_args(request, "short_name", "full_name", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
+        return not_enough_rights(request)
+    conf = config.Config()
+    try:
+        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+    except Exception:
+        return sql_error(request)
+    cur = conn.cursor()
+
+    sql = "INSERT INTO criteria_title(short_name, full_name) VALUES(%(short_name)s, %(full_name)s)"
+
+    error_happend = False
+    inserted_id = 0
+    try:
+        cur.execute(sql, request)
+        inserted_id = conn.insert_id()
+        conn.commit()
+    except Exception:
+         error_happend = True
+    finally:
+        cur.close()
+        conn.close()
+    if error_happend:
+        return sql_error(request)
+
+    return '{"error_code": 0, "id": %d, "criteria_title_id": %d}' % (int(request["id"]), inserted_id)
+
+def onp_add_school_type(request):
+    if not _check_args(request, "short_title", "full_title", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
+        return not_enough_rights(request)
+    conf = config.Config()
+    try:
+        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+    except Exception:
+        return sql_error(request)
+    cur = conn.cursor()
+
+    sql = "INSERT INTO school_type(short_title, full_title) VALUES(%(short_title)s, %(full_title)s)"
+
+    error_happend = False
+    inserted_id = 0
+    try:
+        cur.execute(sql, request)
+        inserted_id = conn.insert_id()
+        conn.commit()
+    except Exception:
+         error_happend = True
+    finally:
+        cur.close()
+        conn.close()
+    if error_happend:
+        return sql_error(request)
+
+    return '{"error_code": 0, "id": %d, "school_type_id": %d}' % (int(request["id"]), inserted_id)
+
 def onp_register_person(request):
     if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone", "session_id"):
         return not_enougth_args(request)
@@ -178,5 +240,7 @@ api_functions = {
     "onp_logout": onp_logout,
     "onp_check_session": onp_check_session,
     "onp_get_people": onp_get_people,
+    "onp_add_criteria_title": onp_add_criteria_title,
+    "onp_add_school_type": onp_add_school_type,
     "onp_request_session": onp_request_session
 }
