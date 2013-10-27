@@ -16,8 +16,8 @@ def _check_args(request, *needed_args):
 
 def _session_checker(request, sess):
     if not sess or sess["ip_addr"] != request["ip_addr"]:
-        return false
-    return true
+        return False
+    return True
 
 def _fetch_one_dict(cursor):
     data = cursor.fetchone()
@@ -127,9 +127,9 @@ def onp_register_person(request):
 def onp_register_account(request):
     if not _check_args(request, "login", "password", "person_id", "session_id"):
         return not_enougth_args(request)
-    sess = session.get_session(request["session_id"])
-    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
-        return not_enough_rights(request)
+#    sess = session.get_session(request["session_id"])
+#    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
+#        return not_enough_rights(request)
     conf = config.Config()
     try:
         conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)

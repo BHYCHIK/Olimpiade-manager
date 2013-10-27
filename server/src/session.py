@@ -67,10 +67,10 @@ def make_session(request):
 def get_session(sess_id):
     conf = config.Config();
     mc = memcache.Client([conf.memcached_addr], debug=0)
-    sess_json = mc.get(sess_id)
+    sess_json = mc.get(sess_id.encode('utf-8'))
     if not sess_json:
         return None;
-    return json.dumps(sess_json);
+    return json.loads(sess_json);
 
 def delete_session(sess_id):
     conf = config.Config();
