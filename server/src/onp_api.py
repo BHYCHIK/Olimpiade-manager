@@ -93,6 +93,76 @@ def onp_get_people(request):
 
     return json.dumps(result)
 
+def onp_get_city_types(request):
+    if not _check_args(request, "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+    conf = config.Config()
+    try:
+        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+    except Exception:
+        return sql_error(request)
+    cur = conn.cursor()
+
+    sql = "SELECT id, short_title, full_title from city_type order by id limit %(from)s, %(count)s"
+
+    error_happend = False
+    inserted_id = 0
+    try:
+        cur.execute(sql, request)
+        data = _fetch_all_dict(cur)
+    except Exception:
+         error_happend = True
+    finally:
+        cur.close()
+        conn.close()
+    if error_happend:
+        return sql_error(request)
+
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["data"] = data
+
+    return json.dumps(result)
+
+def onp_get_cities(request):
+    if not _check_args(request, "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+    conf = config.Config()
+    try:
+        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+    except Exception:
+        return sql_error(request)
+    cur = conn.cursor()
+
+    sql = "SELECT id, name from city order by name limit %(from)s, %(count)s"
+
+    error_happend = False
+    inserted_id = 0
+    try:
+        cur.execute(sql, request)
+        data = _fetch_all_dict(cur)
+    except Exception:
+         error_happend = True
+    finally:
+        cur.close()
+        conn.close()
+    if error_happend:
+        return sql_error(request)
+
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["data"] = data
+
+    return json.dumps(result)
+
 def onp_add_criteria_title(request):
     if not _check_args(request, "short_name", "full_name", "session_id"):
         return not_enougth_args(request)
