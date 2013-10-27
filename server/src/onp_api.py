@@ -319,7 +319,7 @@ def onp_register_person(request):
     return '{"error_code": 0, "id": %d, "person_id": %d}' % (int(request["id"]), inserted_id)
 
 def onp_register_account(request):
-    if not _check_args(request, "login", "password", "person_id", "session_id"):
+    if not _check_args(request, "login", "password", "person_id", "session_id", "admin_priv"):
         return not_enougth_args(request)
     sess = session.get_session(request["session_id"])
     if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
@@ -332,7 +332,7 @@ def onp_register_account(request):
 
     cur = conn.cursor()
 
-    sql = "INSERT INTO account(login, password_hash, person_id) VALUES(%(login)s, md5(%(password)s), %(person_id)s)"
+    sql = "INSERT INTO account(login, password_hash, person_id, admin_priv) VALUES(%(login)s, md5(%(password)s), %(person_id)s, %(admin_priv)s)"
 
     error_happend = False
     inserted_id = 0
