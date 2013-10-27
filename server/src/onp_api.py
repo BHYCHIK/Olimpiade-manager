@@ -13,6 +13,11 @@ def _check_args(request, *needed_args):
             return False
     return True
 
+def _session_checker(request, sess):
+    if not sess or sess["ip_addr"] != request["ip_addr"]:
+        return false
+    return true
+
 def onp_ping(request):
     return '{"error_code": 0, "id": %d}' % int(request["id"])
 
@@ -22,10 +27,19 @@ def onp_logout(request):
     session.delete_session(request["session_id"])
     return '{"error_code": 0, "id": %d}' % int(request["id"])
 
+def onp_check_session(request):
+    if not _check_args(request, "session_id"):
+        return not_enough_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+    return '{"error_code": 0, "id": %d}' % int(request["id"])
+
 def onp_register_person(request):
     if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone", "session_id"):
         return not_enougth_args(request)
-    if not sess or int(sess["admin_priv"]) == 0:
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
         return not_enough_rights(request)
     conf = config.Config()
     try:
@@ -56,7 +70,7 @@ def onp_register_account(request):
     if not _check_args(request, "login", "password", "person_id", "session_id"):
         return not_enougth_args(request)
     sess = session.get_session(request["session_id"])
-    if not sess or int(sess["admin_priv"]) == 0:
+    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
         return not_enough_rights(request)
     conf = config.Config()
     try:
@@ -104,5 +118,6 @@ api_functions = {
     "onp_register_person": onp_register_person,
     "onp_register_account": onp_register_account,
     "onp_logout": onp_logout,
+    "onp_check_session": onp_check_session,
     "onp_request_session": onp_request_session
 }
