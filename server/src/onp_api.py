@@ -124,6 +124,68 @@ def onp_add_criteria_title(request):
 
     return '{"error_code": 0, "id": %d, "criteria_title_id": %d}' % (int(request["id"]), inserted_id)
 
+def onp_add_city(request):
+    if not _check_args(request, "name", "city_type_id", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
+        return not_enough_rights(request)
+    conf = config.Config()
+    try:
+        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+    except Exception:
+        return sql_error(request)
+    cur = conn.cursor()
+
+    sql = "INSERT INTO city(name, city_type_id) VALUES(%(name)s, %(city_type_id)s)"
+
+    error_happend = False
+    inserted_id = 0
+    try:
+        cur.execute(sql, request)
+        inserted_id = conn.insert_id()
+        conn.commit()
+    except Exception:
+         error_happend = True
+    finally:
+        cur.close()
+        conn.close()
+    if error_happend:
+        return sql_error(request)
+
+    return '{"error_code": 0, "id": %d, "city_id": %d}' % (int(request["id"]), inserted_id)
+
+def onp_add_city_type(request):
+    if not _check_args(request, "short_title", "full_title", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
+        return not_enough_rights(request)
+    conf = config.Config()
+    try:
+        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+    except Exception:
+        return sql_error(request)
+    cur = conn.cursor()
+
+    sql = "INSERT INTO city_type(short_title, full_title) VALUES(%(short_title)s, %(full_title)s)"
+
+    error_happend = False
+    inserted_id = 0
+    try:
+        cur.execute(sql, request)
+        inserted_id = conn.insert_id()
+        conn.commit()
+    except Exception:
+         error_happend = True
+    finally:
+        cur.close()
+        conn.close()
+    if error_happend:
+        return sql_error(request)
+
+    return '{"error_code": 0, "id": %d, "city_type_id": %d}' % (int(request["id"]), inserted_id)
+
 def onp_add_school_type(request):
     if not _check_args(request, "short_title", "full_title", "session_id"):
         return not_enougth_args(request)
@@ -242,5 +304,7 @@ api_functions = {
     "onp_get_people": onp_get_people,
     "onp_add_criteria_title": onp_add_criteria_title,
     "onp_add_school_type": onp_add_school_type,
+    "onp_add_city_type": onp_add_city_type,
+    "onp_add_city": onp_add_city,
     "onp_request_session": onp_request_session
 }
