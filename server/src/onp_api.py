@@ -17,8 +17,10 @@ def onp_ping(request):
     return '{"error_code": 0, "id": %d}' % int(request["id"])
 
 def onp_register_person(request):
-    if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone"):
+    if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone", "session_id"):
         return not_enougth_args(request)
+    if not sess or int(sess["admin_priv"]) == 0:
+        return not_enough_rights(request)
     conf = config.Config()
     try:
         conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
@@ -45,8 +47,11 @@ def onp_register_person(request):
     return '{"error_code": 0, "id": %d, "person_id": %d}' % (int(request["id"]), inserted_id)
 
 def onp_register_account(request):
-    if not _check_args(request, "login", "password", "person_id"):
+    if not _check_args(request, "login", "password", "person_id", "session_id"):
         return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not sess or int(sess["admin_priv"]) == 0:
+        return not_enough_rights(request)
     conf = config.Config()
     try:
         conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)

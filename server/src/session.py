@@ -64,6 +64,15 @@ def make_session(request):
     return session
 
 
-def check_session():
-    pass
+def get_session(sess_id):
+    conf = config.Config();
+    mc = memcache.Client([conf.memcached_addr], debug=0)
+    sess_json = mc.get(sess_id)
+    if not sess_json:
+        return None;
+    return json.dumps(sess_json);
 
+def delete_session(sess_id):
+    conf = config.Config();
+    mc = memcache.Client([conf.memcached_addr], debug=0)
+    mc.delete(sess_id)
