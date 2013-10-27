@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+from django import forms
+from bootstrap3_datetime.widgets import DateTimePicker
+
+class RegisterPersonForm(forms.Form):
+    msg = {
+        'required': 'Поле является обязательным',
+        'invalid': 'Введены неверные для этого поля данные',
+    }
+    gender_choices = (
+            ('Male', 'Мужской'),
+            ('Female', 'Женский'),
+    )
+    date_widget = DateTimePicker(options={"format": "dd.MM.yyyy", "pickTime": False}, attrs={'placeholder': '01.01.1990'})
+
+    first_name = forms.CharField(error_messages=msg, label='Имя', max_length=20, required=True)
+    surname = forms.CharField(error_messages=msg, label='Фамилия', max_length=30, required=True)
+    second_name = forms.CharField(error_messages=msg, label='Отчество', max_length=20, required=False)
+    gender = forms.ChoiceField(label='Пол', choices=gender_choices, required=False)
+    email = forms.EmailField(error_messages=msg, widget=forms.TextInput(attrs={'placeholder':'example@mail.ru'}),
+                             required=True)
+    date_of_birth = forms.DateField(input_formats=('%d.%m.%Y',), error_messages=msg, label='Дата рождения', widget=date_widget, required=False)
+    description = forms.CharField(error_messages=msg, label='Дополнительные сведения', widget=forms.Textarea, max_length=1024, required=False)
+    address = forms.CharField(error_messages=msg, widget=forms.TextInput(attrs={'placeholder': 'г. Москва, ул. Тверская, д.1, кв.1'}),
+                              label='Адрес', max_length=1024, required=False)
+    phone = forms.CharField(error_messages=msg, widget=forms.TextInput(attrs={'placeholder': '+79267775533'}),
+                            label='Телефон', max_length=20, required=False)
