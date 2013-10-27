@@ -11,6 +11,7 @@ from error_handlers import *
 from onp_api import *
 import logger
 import json
+import traceback
 
 # ONP - Olympiade network protocol
 class ONP(LineReceiver):
@@ -45,7 +46,7 @@ class ONP(LineReceiver):
             try:
                 reply = self.operate()
             except Exception:
-                logger.Logger().error("UNKNOWN ERROR HAPPEND")
+                logger.Logger().error("UNKNOWN ERROR HAPPENED: %s" % traceback.print_exc())
                 reply = unknown_error()
             self._buffer = ""
             if reply != None:

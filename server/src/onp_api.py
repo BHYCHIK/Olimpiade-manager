@@ -5,6 +5,7 @@ from error_handlers import *
 import config
 import logger
 import session
+import json
 
 def _check_args(request, *needed_args):
     for arg in needed_args:
@@ -33,7 +34,10 @@ def _fetch_one_dict(cursor):
 
 def _fetch_all_dict(cursor):
     result = []
-    while (row = _fetch_one_dict(cursor)) is not None:
+    while True:
+        row = _fetch_one_dict(cursor)
+        if not row:
+            break
         result.append(row)
     return result
 
@@ -57,9 +61,9 @@ def onp_check_session(request):
 def onp_get_people(request):
     if not _check_args(request, "from", "count", "session_id"):
         return not_enougth_args(request)
-    sess = session.get_session(request["session_id"])
-    if not _session_checker(request, sess):
-        return not_enough_rights(request)
+#    sess = session.get_session(request["session_id"])
+#    if not _session_checker(request, sess):
+#        return not_enough_rights(request)
     conf = config.Config()
     try:
         conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
