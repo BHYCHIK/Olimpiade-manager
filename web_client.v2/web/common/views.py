@@ -17,7 +17,7 @@ def register_person(request):
     if request.method == 'POST':
         print('ee')
         form = RegisterPersonForm(request.POST)
-        api = Api()
+        api = Api(request.session['id'])
         if form.is_valid() and api.register_person(form.cleaned_data):
             print('valid')
             return HttpResponseRedirect('/thanks?from=reg_person')
@@ -34,9 +34,12 @@ def register_account(request):
         print('ee')
         form = RegisterAccountForm(None, request.POST)
         api = Api()
-        if form.is_valid() and api.register_account(form.cleaned_data):
-            print('valid')
-            return HttpResponseRedirect('/thanks?from=reg_account')
+        if form.is_valid():
+            reg_data = form.cleaned_data
+            reg_data.update({'session_id': ''})
+            if api.register_account(reg_data):
+                print('valid')
+                return HttpResponseRedirect('/thanks?from=reg_account')
     else:
         print('saf')
         form = RegisterAccountForm(None)
@@ -47,8 +50,10 @@ def register_account(request):
 
 @cache_page(settings.caching_settings['static_page_cache_time'])
 def thanks(request):
+    print(request.session['id'])
     ref = request.GET['from']
-    ref2msg = {'reg_person': 'Пользователь успешно зарегистрирован.'}
+    ref2msg = {'reg_person': 'Пользователь успешно зарегистрирован.',
+               'reg_account': 'Аккаунт успешно зарегистрирован.'}
     return render_to_response('common/thanks.html', {'message': ref2msg[ref]}, context_instance=RequestContext(request))
 
 def account_login(request):
@@ -56,8 +61,9 @@ def account_login(request):
     if request.method != 'POST':
         raise ValueError() #TODO: 404
 
-    api = Api()
-    session_id = api.account_login(request.POST)
+    post = request.POST
+    login_data = {'login': post['login'], 'password': post['password']}
+    session_id = Api().account_login(login_data)
     if session_id:
         print('valid login')
         request.session['id'] = session_id

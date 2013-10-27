@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from bootstrap3_datetime.widgets import DateTimePicker
+from common.api import Api
 
 class FormMessages(object):
     error_messages = {
@@ -33,10 +34,12 @@ class RegisterPersonForm(forms.Form):
 class RegisterAccountForm(forms.Form):
     msg = FormMessages.error_messages
 
-    login = forms.EmailField(label='Логин', error_messages=msg, max_length=45, required=True)
+    login = forms.CharField(label='Логин', error_messages=msg, max_length=45, required=True)
     password = forms.CharField(error_messages=msg, widget=forms.PasswordInput, label='Пароль', max_length=128, required=True)
 
     def __init__(self, persons, *args, **kwargs):
         super(RegisterAccountForm, self).__init__(*args, **kwargs)
-        person_choices = ((1, 'Денис Исаев'), (2, 'Алибаба Дед'))
-        self.fields['person'] = forms.ChoiceField(choices=person_choices, label='Пользователь', required=True)
+        persons = Api().get_all_persons()
+        print(persons)
+        choices = ((p['id'], '%s %s %s (%s)' % (p['surname'], p['first_name'], p['second_name'], p['email'])) for p in persons)
+        self.fields['person_id'] = forms.ChoiceField(choices=choices, label='Пользователь', required=True)
