@@ -19,6 +19,9 @@ def sql_error(request):
 def incorrect_account(request):
     return '{"error_code": 6, "error_text": "Incorrect login or password", "id": %d}' % int(request["id"])
 
+def not_enough_rights(request):
+    return '{"error_code": 7, "error_text": "You are not authorized or not enough rights", "id": %d}' % int(request["id"])
+
 def internal_error(request):
     return '{"error_code": 500, "error_text": "Internal server error", "id": %d}' % int(request["id"])
 

@@ -107,7 +107,8 @@ DROP TABLE IF EXISTS `iu7_step`.`competition` ;
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`competition` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
   `year` YEAR NOT NULL ,
-  PRIMARY KEY (`id`) )
+  PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `year_UNIQUE` (`year` ASC) )
 ENGINE = InnoDB;
 
 
@@ -158,7 +159,7 @@ CREATE  TABLE IF NOT EXISTS `iu7_step`.`range` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
   `criteria_number` INT UNSIGNED NOT NULL ,
   `type` ENUM('expert', 'reviewer') NOT NULL ,
-  `mix_score` TINYINT UNSIGNED NOT NULL ,
+  `min_score` TINYINT UNSIGNED NOT NULL ,
   `max_score` TINYINT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) ,
   CONSTRAINT `fk_range_to_criteria`
@@ -315,12 +316,13 @@ DROP TABLE IF EXISTS `iu7_step`.`account` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`account` (
   `id` INT NOT NULL ,
-  `login` VARCHAR(45) NULL ,
-  `password_hash` VARCHAR(128) NULL ,
-  `person_id` INT UNSIGNED NULL ,
+  `login` VARCHAR(45) NOT NULL ,
+  `password_hash` VARCHAR(128) NOT NULL ,
+  `person_id` INT UNSIGNED NOT NULL ,
   `admin_priv` TINYINT(1) NOT NULL DEFAULT false ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_account_to_people` (`person_id` ASC) ,
+  UNIQUE INDEX `login_UNIQUE` (`login` ASC) ,
   CONSTRAINT `fk_account_to_people`
     FOREIGN KEY (`person_id` )
     REFERENCES `iu7_step`.`person` (`id` )

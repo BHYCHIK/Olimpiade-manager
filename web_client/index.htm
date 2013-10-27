@@ -7,6 +7,8 @@
 	<link href="/style/registration.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript" src="/js/jquery-1.10.2.min.js"></script>
 	<script type="text/javascript" src="/js/register.js"></script>
+	<script type="text/javascript" src="/js/menu.js"></script>
+	<script type="text/javascript" src="/js/data.js"></script>
 	<script type="text/javascript" src="/js/main.js"></script>
 </head>
 <body>
@@ -16,7 +18,40 @@
         </tr>
         <tr id='content_row'>
             <td id='content_col'><div id='content_layout'></div></td>
-            <td id='menu_col'><div id='menu_layout'></div></td>
+            <td id='menu_col' valign='top'>
+                <div id='menu_layout'>
+                <table id='login_area'>
+                    <tr id='user_info' style='display: none;'>
+                        <td>Вы вошли как:&nbsp;<span id='user_name'>Username</span></td>
+                    </tr>
+                    <tr id='login_box'>
+                        <td><div>
+                        <table>
+                            <tr>
+                                <td>Логин:</td>
+                                <td><input type="text" name="u_login"></td>
+                            </tr>
+                            <tr>
+                                <td>Пароль:</td>
+                                <td><input type="text" name"u_passw"=""></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div id="sign_in">
+                                        <label><input type="checkbox" checked="true" id="remember_me">Запомнить</label>
+                                        <button>Войти</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr><td colspan="2">
+                                <a href="/html/registration.htm">Регистрация</a>
+                            </td></tr>
+                        </table>
+                        </div></td>
+                    </tr>
+                </table>
+                </div>
+            </td>
         </tr>
         <tr id='footer_row'>
             <td colspan='2'><div id='footer_layout'></div></td>
