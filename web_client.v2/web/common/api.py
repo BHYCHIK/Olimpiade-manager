@@ -38,9 +38,9 @@ class Api(object):
 
         return result
 
-    def register_person(self, reg_form):
+    def register_person(self, reg_data):
         data = {}
-        for key, value in reg_form.cleaned_data.iteritems():
+        for key, value in reg_data.iteritems():
             if isinstance(value, datetime.date):
                 data[key] = time.strftime('%d/%m.%Y', value.timetuple())
             else:
@@ -48,3 +48,16 @@ class Api(object):
         res = self._send_req('onp_register_person', data)
         print(res)
         return True
+
+    def register_account(self, reg_data):
+        res = self._send_req('onp_register_person', reg_data)
+        print(res)
+        return True
+
+    def account_login(self, login_data):
+        res = self._send_req('onp_request_session', login_data)
+        print(res)
+        return res['session_id'] if res else None
+
+    def check_session(self, session_data):
+        pass

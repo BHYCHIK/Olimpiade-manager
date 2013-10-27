@@ -1,4 +1,5 @@
 from os import path, pardir
+import django.conf.global_settings as DEFAULT_SETTINGS
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -108,7 +109,6 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -121,6 +121,7 @@ INSTALLED_APPS = (
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -158,3 +159,7 @@ caching_settings = {
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 BACKEND_HOST = ('127.0.0.1', 5000)
 BACKEND_TIMEOUT = 5.5
+
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+    'common.context_processors.add_csrf_token',
+)

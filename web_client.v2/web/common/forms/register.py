@@ -2,11 +2,15 @@
 from django import forms
 from bootstrap3_datetime.widgets import DateTimePicker
 
-class RegisterPersonForm(forms.Form):
-    msg = {
+class FormMessages(object):
+    error_messages = {
         'required': 'Поле является обязательным',
         'invalid': 'Введены неверные для этого поля данные',
     }
+
+class RegisterPersonForm(forms.Form):
+    msg = FormMessages.error_messages
+
     gender_choices = (
             ('Male', 'Мужской'),
             ('Female', 'Женский'),
@@ -25,3 +29,14 @@ class RegisterPersonForm(forms.Form):
                               label='Адрес', max_length=1024, required=False)
     phone = forms.CharField(error_messages=msg, widget=forms.TextInput(attrs={'placeholder': '+79267775533'}),
                             label='Телефон', max_length=20, required=False)
+
+class RegisterAccountForm(forms.Form):
+    msg = FormMessages.error_messages
+
+    login = forms.EmailField(label='Логин', error_messages=msg, max_length=45, required=True)
+    password = forms.CharField(error_messages=msg, widget=forms.PasswordInput, label='Пароль', max_length=128, required=True)
+
+    def __init__(self, persons, *args, **kwargs):
+        super(RegisterAccountForm, self).__init__(*args, **kwargs)
+        person_choices = ((1, 'Денис Исаев'), (2, 'Алибаба Дед'))
+        self.fields['person'] = forms.ChoiceField(choices=person_choices, label='Пользователь', required=True)

@@ -12,5 +12,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', include('common.urls')),
     url(r'^register_person$', 'common.views.register_person'),
+    url(r'^register_account$', 'common.views.register_account'),
     url(r'^thanks$', 'common.views.thanks'),
+    url(r'^login$', 'common.views.account_login'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

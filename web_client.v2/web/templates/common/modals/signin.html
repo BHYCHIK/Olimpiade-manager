@@ -6,17 +6,18 @@
         <h4 class="modal-title">Аутентификация</h4>
       </div>
       <div class="modal-body">
-        <form class="form-horizontal" role="form">
+        <form class="form-horizontal" role="form" method="post" action="http://olimp-manager.com/login">
+          {% csrf_token %}
           <div class="form-group">
-            <label for="inputEmail1" class="col-lg-2 control-label">Email</label>
+            <label for="inputEmail1" class="col-lg-2 control-label">Логин</label>
             <div class="col-lg-10">
-              <input type="email" class="form-control" id="inputEmail1" placeholder="Email">
+              <input type="text" name="login" class="form-control" id="inputLogin" placeholder="Логин">
             </div>
           </div>
           <div class="form-group">
-            <label for="inputPassword1" class="col-lg-2 control-label">Password</label>
+            <label for="inputPassword1" class="col-lg-2 control-label">Пароль</label>
             <div class="col-lg-10">
-              <input type="password" class="form-control" id="inputPassword1" placeholder="Password">
+              <input type="password" name="password" class="form-control" id="inputPassword" placeholder="Пароль">
             </div>
           </div>
           <div class="form-group">
@@ -30,17 +31,17 @@
             <div class="col-lg-5">
               <div class="checkbox">
                 <label>
-                  <a class="pull-right" href="/register_person">Не зарегистрированы?</a>
+                  <a class="pull-right" href="/register_account">Не зарегистрированы?</a>
                 </label>
               </div>
             </div>
          
           </div>
           <div class="form-group">
-            <div class="col-lg-offset-2 col-lg-10">
+             <div class="col-lg-offset-2 col-lg-10">
               <button type="submit" class="btn btn-primary">Войти</button>
             </div>
-          </div>
+         </div>
         </form>
       </div>
     </div><!-- /.modal-content -->
