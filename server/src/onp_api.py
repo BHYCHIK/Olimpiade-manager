@@ -13,6 +13,30 @@ def _check_args(request, *needed_args):
             return False
     return True
 
+def _session_checker(request, sess):
+    if not sess or sess["ip_addr"] != request["ip_addr"]:
+        return false
+    return true
+
+def _fetch_one_dict(cursor):
+    data = cursor.fetchone()
+    if data == None:
+        return None
+    desc = cursor.description
+
+    res = {}
+
+    for (name, value) in zip(desc, data) :
+        res[name[0]] = value
+
+    return res
+
+def _fetch_all_dict(cursor):
+    result = []
+    while (row = _fetch_one_dict(cursor)) is not None:
+        result.append(row)
+    return result
+
 def onp_ping(request):
     return '{"error_code": 0, "id": %d}' % int(request["id"])
 
@@ -22,10 +46,54 @@ def onp_logout(request):
     session.delete_session(request["session_id"])
     return '{"error_code": 0, "id": %d}' % int(request["id"])
 
+def onp_check_session(request):
+    if not _check_args(request, "session_id"):
+        return not_enough_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+    return '{"error_code": 0, "id": %d}' % int(request["id"])
+
+def onp_get_people(request):
+    if not _check_args(request, "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+    conf = config.Config()
+    try:
+        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+    except Exception:
+        return sql_error(request)
+    cur = conn.cursor()
+
+    sql = "SELECT id, first_name, second_name, surname, gender, email, date_of_birth, description, address, phone from person order by surname, first_name, second_name, id limit %(from)s, %(count)s"
+
+    error_happend = False
+    inserted_id = 0
+    try:
+        cur.execute(sql, request)
+        data = _fetch_all_dict(cur)
+    except Exception:
+         error_happend = True
+    finally:
+        cur.close()
+        conn.close()
+    if error_happend:
+        return sql_error(request)
+
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["data"] = data
+
+    return json.dumps(result)
+
 def onp_register_person(request):
     if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone", "session_id"):
         return not_enougth_args(request)
-    if not sess or int(sess["admin_priv"]) == 0:
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
         return not_enough_rights(request)
     conf = config.Config()
     try:
@@ -56,7 +124,7 @@ def onp_register_account(request):
     if not _check_args(request, "login", "password", "person_id", "session_id"):
         return not_enougth_args(request)
     sess = session.get_session(request["session_id"])
-    if not sess or int(sess["admin_priv"]) == 0:
+    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
         return not_enough_rights(request)
     conf = config.Config()
     try:
@@ -104,5 +172,7 @@ api_functions = {
     "onp_register_person": onp_register_person,
     "onp_register_account": onp_register_account,
     "onp_logout": onp_logout,
+    "onp_check_session": onp_check_session,
+    "onp_get_people": onp_get_people,
     "onp_request_session": onp_request_session
 }
