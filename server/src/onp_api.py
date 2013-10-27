@@ -15,7 +15,7 @@ def _check_args(request, *needed_args):
     return True
 
 def _session_checker(request, sess):
-    if not sess or sess["ip_addr"] != request["ip_addr"]:
+    if not sess or sess["ip_addr"] != request["ip_addr"].host:
         return False
     return True
 
