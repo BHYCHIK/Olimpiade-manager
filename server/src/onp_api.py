@@ -16,6 +16,12 @@ def _check_args(request, *needed_args):
 def onp_ping(request):
     return '{"error_code": 0, "id": %d}' % int(request["id"])
 
+def onp_logout(request):
+    if not _check_args(request, "session_id"):
+        return not_enough_args(request)
+    session.delete_session(request["session_id"])
+    return '{"error_code": 0, "id": %d}' % int(request["id"])
+
 def onp_register_person(request):
     if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone", "session_id"):
         return not_enougth_args(request)
@@ -97,5 +103,6 @@ api_functions = {
     "onp_ping": onp_ping,
     "onp_register_person": onp_register_person,
     "onp_register_account": onp_register_account,
+    "onp_logout": onp_logout,
     "onp_request_session": onp_request_session
 }
