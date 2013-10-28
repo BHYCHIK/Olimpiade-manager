@@ -8,41 +8,37 @@ from common.forms import RegisterPersonForm, RegisterAccountForm
 from api import Api
 from django.template import RequestContext
 
-#@cache_page(settings.caching_settings['static_page_cache_time'])
+@cache_page(settings.caching_settings['static_page_cache_time'])
 def index(request):
     return render_to_response('common/index.html', {}, context_instance=RequestContext(request))
 
 def register_person(request):
-    print('sdf')
     if request.method == 'POST':
-        print('ee')
         form = RegisterPersonForm(request.POST)
         api = Api(request.session['id'])
         if form.is_valid() and api.register_person(form.cleaned_data):
             print('valid')
             return HttpResponseRedirect('/thanks?from=reg_person')
     else:
-        print('saf')
         form = RegisterPersonForm()
 
     c = {'form': form}
     return render_to_response('common/forms/register_person.html', c, context_instance=RequestContext(request))
 
 def register_account(request):
-    print('sdf')
+    api = Api('')
+    persons = api.get_all_persons()
     if request.method == 'POST':
-        print('ee')
-        form = RegisterAccountForm(None, request.POST)
-        api = Api()
+        form = RegisterAccountForm(persons, request.POST)
         if form.is_valid():
             reg_data = form.cleaned_data
             reg_data.update({'session_id': ''})
+            reg_data['admin_priv'] = int(reg_data['admin_priv'])
             if api.register_account(reg_data):
                 print('valid')
                 return HttpResponseRedirect('/thanks?from=reg_account')
     else:
-        print('saf')
-        form = RegisterAccountForm(None)
+        form = RegisterAccountForm(persons)
 
     c = {'form': form}
     return render_to_response('common/forms/register_account.html', c, context_instance=RequestContext(request))

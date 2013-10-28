@@ -36,10 +36,8 @@ class RegisterAccountForm(forms.Form):
 
     login = forms.CharField(label='Логин', error_messages=msg, max_length=45, required=True)
     password = forms.CharField(error_messages=msg, widget=forms.PasswordInput, label='Пароль', max_length=128, required=True)
-
+    admin_priv = forms.ChoiceField(error_messages=msg, choices=((0, 'Обычный аккаунт'), (1, 'Аккаунт администратора')), label='Тип аккаунта', required=True)
     def __init__(self, persons, *args, **kwargs):
         super(RegisterAccountForm, self).__init__(*args, **kwargs)
-        persons = Api().get_all_persons()
-        print(persons)
         choices = ((p['id'], '%s %s %s (%s)' % (p['surname'], p['first_name'], p['second_name'], p['email'])) for p in persons)
         self.fields['person_id'] = forms.ChoiceField(choices=choices, label='Пользователь', required=True)
