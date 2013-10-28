@@ -17,6 +17,8 @@ def _gen_session_id():
 
 # Can raise MySQLdb exceptions
 def _check_pass(request):
+    mysql_exception = None
+
     conf = config.Config()
     conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
     cur = conn.cursor()
@@ -28,14 +30,16 @@ def _check_pass(request):
     try:
         cur.execute(sql, request)
         row = cur.fetchone()
-    except MySQLdb.Error:
+    except MySQLdb.Error, e:
         error_happend = True
+        mysql_exception = e
+        logger.Logger().error("SQL ERROR: " + str(mysql_exception))
     finally:
         cur.close()
         conn.close()
 
     if error_happend:
-        raise MySQLdb.Error()
+        raise mysql_exception
 
     if row is None:
         logger.Logger().warn("Incorrect login/password for %s" % request["login"])

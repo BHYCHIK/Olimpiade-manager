@@ -37,17 +37,18 @@ class ONP(LineReceiver):
         if f_name is None or f_name not in api_functions:
             logger.Logger().warn("Unkown api function %s in request from %s" % (f_name, self.clientAddress) )
             return unknown_api_function(request)
-        return api_functions[f_name](request)
+        result = api_functions[f_name](request)
+        return result
 
     def lineReceived(self, line):
         self._buffer = self._buffer + "\r\n" + line
         self._json_state = self._json_state + sum(1 for i in line if i == '{') - sum(1 for i in line if i == '}')
         if self._json_state == 0:
             try:
-                reply = self.operate()
+                reply = json.dumps(self.operate())
             except Exception:
                 logger.Logger().error("UNKNOWN ERROR HAPPENED: %s" % traceback.print_exc())
-                reply = unknown_error()
+                reply = json.dumps(unknown_error())
             self._buffer = ""
             if reply != None:
                 self.sendLine(reply)
