@@ -75,4 +75,4 @@ def get_session(sess_id):
 def delete_session(sess_id):
     conf = config.Config();
     mc = memcache.Client([conf.memcached_addr], debug=0)
-    mc.delete(sess_id)
+    mc.delete(sess_id.encode('utf-8'))
