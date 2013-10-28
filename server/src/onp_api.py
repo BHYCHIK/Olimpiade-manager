@@ -43,10 +43,13 @@ def _fetch_all_dict(cursor):
 
 def _exec_sql_get_func(request, sql):
     conf = config.Config()
+    mysql_exception = None
     try:
         conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
-    except Exception:
-        return sql_error(request)
+    except Exception, e:
+        mysql_exception = e
+        logger.Logger().error("SQL ERROR: " + str(mysql_exception))
+        return sql_error(request, str(mysql_exception))
     cur = conn.cursor()
 
     error_happend = False
@@ -54,29 +57,37 @@ def _exec_sql_get_func(request, sql):
     try:
         cur.execute(sql, request)
         data = _fetch_all_dict(cur)
-    except Exception:
+    except MySQLdb.Error, e:
          error_happend = True
+         mysql_exception = e
     finally:
         cur.close()
         conn.close()
     if error_happend:
-        return sql_error(request)
+        logger.Logger().error("SQL ERROR: " + str(mysql_exception))
+        return sql_error(request, str(mysql_exception))
 
     result = {}
     result["error_code"] = 0
     result["id"] = int(request["id"])
     result["data"] = data
 
-    return json.dumps(result)
+    return result
 
 def onp_ping(request):
-    return '{"error_code": 0, "id": %d}' % int(request["id"])
+    result = {}
+    result["error_code"] = 0;
+    result["id"] = int(request["id"])
+    return result
 
 def onp_logout(request):
     if not _check_args(request, "session_id"):
         return not_enough_args(request)
     session.delete_session(request["session_id"])
-    return '{"error_code": 0, "id": %d}' % int(request["id"])
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    return result
 
 def onp_check_session(request):
     if not _check_args(request, "session_id"):
@@ -94,7 +105,15 @@ def onp_get_people(request):
 #        return not_enough_rights(request)
 
     sql = "SELECT id, first_name, second_name, surname, gender, email, date_of_birth, description, address, phone from person order by surname, first_name, second_name, id limit %(from)s, %(count)s"
-    return _exec_sql_get_func(request, sql)
+    result = _exec_sql_get_func(request, sql)
+    if result["error_code"] != 0:
+        return result
+    for person in result["data"]:
+        try:
+            person["date_of_birth"] = person["date_of_birth"].strftime("%Y%m%d")
+        except Exception:
+            person["date_of_birth"] = "00000000"
+    return result
 
 def onp_get_city_types(request):
     if not _check_args(request, "from", "count", "session_id"):
@@ -103,7 +122,8 @@ def onp_get_city_types(request):
     if not _session_checker(request, sess):
         return not_enough_rights(request)
     sql = "SELECT id, short_title, full_title from city_type order by id limit %(from)s, %(count)s"
-    return _exec_sql_get_func(request, sql)
+    result = _exec_sql_get_func(request, sql)
+    return result
 
 def onp_get_cities(request):
     if not _check_args(request, "from", "count", "session_id"):
@@ -114,7 +134,8 @@ def onp_get_cities(request):
 
     sql = "SELECT id, name from city order by name limit %(from)s, %(count)s"
 
-    return _exec_sql_get_func(request, sql)
+    result = _exec_sql_get_func(request, sql)
+    return result
 
 def onp_get_criteria_titles(request):
     if not _check_args(request, "from", "count", "session_id"):
@@ -125,7 +146,8 @@ def onp_get_criteria_titles(request):
 
     sql = "SELECT id, short_name, full_name FROM criteria_title ORDER BY id LIMIT %(from)s, %(count)s"
 
-    return _exec_sql_get_func(request, sql)
+    result = _exec_sql_get_func(request, sql)
+    return result
 
 def onp_get_school_types(request):
     if not _check_args(request, "from", "count", "session_id"):
@@ -136,7 +158,8 @@ def onp_get_school_types(request):
 
     sql = "SELECT id, short_title, full_title, full_name FROM school_type ORDER BY id LIMIT %(from)s, %(count)s"
 
-    return _exec_sql_get_func(request, sql)
+    result = _exec_sql_get_func(request, sql)
+    return result
 
 def onp_add_criteria_title(request):
     if not _check_args(request, "short_name", "full_name", "session_id"):
@@ -167,7 +190,11 @@ def onp_add_criteria_title(request):
     if error_happend:
         return sql_error(request)
 
-    return '{"error_code": 0, "id": %d, "criteria_title_id": %d}' % (int(request["id"]), inserted_id)
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["criteria_title_id"] = inserted_id
+    return result
 
 def onp_add_city(request):
     if not _check_args(request, "name", "city_type_id", "session_id"):
@@ -198,7 +225,11 @@ def onp_add_city(request):
     if error_happend:
         return sql_error(request)
 
-    return '{"error_code": 0, "id": %d, "city_id": %d}' % (int(request["id"]), inserted_id)
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["city_id"] = inserted_id
+    return result
 
 def onp_add_city_type(request):
     if not _check_args(request, "short_title", "full_title", "session_id"):
@@ -229,7 +260,11 @@ def onp_add_city_type(request):
     if error_happend:
         return sql_error(request)
 
-    return '{"error_code": 0, "id": %d, "city_type_id": %d}' % (int(request["id"]), inserted_id)
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["city_type_id"] = inserted_id
+    return result
 
 def onp_add_school_type(request):
     if not _check_args(request, "short_title", "full_title", "session_id"):
@@ -260,14 +295,18 @@ def onp_add_school_type(request):
     if error_happend:
         return sql_error(request)
 
-    return '{"error_code": 0, "id": %d, "school_type_id": %d}' % (int(request["id"]), inserted_id)
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["school_id"] = inserted_id
+    return result
 
 def onp_register_person(request):
     if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone", "session_id"):
         return not_enougth_args(request)
     sess = session.get_session(request["session_id"])
-    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
-        return not_enough_rights(request)
+    #if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
+    #    return not_enough_rights(request)
     conf = config.Config()
     try:
         conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
@@ -291,7 +330,11 @@ def onp_register_person(request):
     if error_happend:
         return sql_error(request)
 
-    return '{"error_code": 0, "id": %d, "person_id": %d}' % (int(request["id"]), inserted_id)
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["person_id"] = inserted_id
+    return result
 
 def onp_register_account(request):
     if not _check_args(request, "login", "password", "person_id", "session_id", "admin_priv"):
@@ -325,16 +368,26 @@ def onp_register_account(request):
     if error_happend:
         return sql_error(request)
 
-    return '{"error_code": 0, "id": %d, "account_id": %d}' % (int(request["id"]), inserted_id)
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["account_id"] = inserted_id
+    return result
 
 def onp_request_session(request):
     if not _check_args(request, "login", "password"):
         return not_enougth_args(request)
     try:
         sess = session.make_session(request)
-        return '{"error_code": 0, "id": %d, "session_id": "%s", "admin_priv": "%s", "person_id": %d}' % (int(request["id"]), sess["session_id"], sess["admin_priv"], sess["person_id"])
-    except MySQLdb.Error:
-        return sql_error(request)
+        result = {}
+        result["error_code"] = 0
+        result["id"] = int(request["id"])
+        result["session_id"] = sess["session_id"]
+        result["admin_priv"] = sess["admin_priv"]
+        result["person_id"] = sess["person_id"]
+        return result
+    except MySQLdb.Error, e:
+        return sql_error(request, str(e))
     except session.UnknownUserException:
         return incorrect_account(request)
     except session.MemcacheException:
