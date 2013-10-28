@@ -5,7 +5,6 @@ from error_handlers import *
 import config
 import logger
 import session
-import json
 
 def _check_args(request, *needed_args):
     for arg in needed_args:
@@ -239,19 +238,19 @@ def onp_request_session(request):
         return not_enougth_args(request)
     try:
         sess = session.make_session(request)
-        result = {}
-        result["error_code"] = 0
-        result["id"] = int(request["id"])
-        result["session_id"] = sess["session_id"]
-        result["admin_priv"] = sess["admin_priv"]
-        result["person_id"] = sess["person_id"]
-        return result
     except MySQLdb.Error, e:
         return sql_error(request, str(e))
     except session.UnknownUserException:
         return incorrect_account(request)
     except session.MemcacheException:
         return internal_error(request)
+    result = {}
+    result["error_code"] = 0
+    result["id"] = int(request["id"])
+    result["session_id"] = sess["session_id"]
+    result["admin_priv"] = sess["admin_priv"]
+    result["person_id"] = sess["person_id"]
+    return result
 
 api_functions = {
     "onp_ping": onp_ping,
