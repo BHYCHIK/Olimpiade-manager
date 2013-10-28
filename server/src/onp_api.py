@@ -5,7 +5,6 @@ from error_handlers import *
 import config
 import logger
 import session
-import json
 
 def _check_args(request, *needed_args):
     for arg in needed_args:

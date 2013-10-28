@@ -73,7 +73,7 @@ def get_session(sess_id):
     try:
         sess_json = mc.get(sess_id.encode('utf-8'))
     except Error, e:
-        logger.Logger.warn("Memcached error: " + str(e))
+        logger.Logger().warn("Memcached error: " + str(e))
         return None
     if not sess_json:
         return None;
@@ -85,4 +85,4 @@ def delete_session(sess_id):
     try:
         mc.delete(sess_id.encode('utf-8'))
     except Error, e:
-        logger.Logger.warn("Memcached error: " + str(e))
+        logger.Logger().warn("Memcached error: " + str(e))
