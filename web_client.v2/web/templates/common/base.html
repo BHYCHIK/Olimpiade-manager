@@ -42,7 +42,14 @@
               </ul>
             </li>
             <li>
+              {% if api_user.is_authenticated %}
+              <form role="form" action="/logout" class="navbar-form" method="post">
+                {% csrf_token %}
+                <button class="btn" type="submit" href="#">Выйти</button>
+              </form>
+              {% else %}
               <a data-toggle="modal" href="#myModal">Войти <span class="glyphicon glyphicon-log-in"></span></a>
+              {% endif %}
             </li>
           </ul>
         </div><!--/.navbar-collapse -->

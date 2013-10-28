@@ -1,4 +1,3 @@
-from django.core.context_processors import csrf
 
-def add_csrf_token(request):
-    return csrf(request)
+def process_api_authentication(request):
+    return {'api_user': request.api_user}

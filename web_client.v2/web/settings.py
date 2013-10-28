@@ -91,10 +91,12 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    #    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'common.api_middleware.ApiMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -113,7 +115,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
+    #    'django.contrib.admin',
     'crispy_forms',
     'bootstrap3_datetime',
     # Uncomment the next line to enable admin documentation:
@@ -160,6 +162,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 BACKEND_HOST = ('127.0.0.1', 5000)
 BACKEND_TIMEOUT = 5.5
 
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
-    'common.context_processors.add_csrf_token',
-)
+TEMPLATE_CONTEXT_PROCESSORS = [tcp for tcp in DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS if tcp != 'django.contrib.auth.context_processors.auth'] + [
+        'django.core.context_processors.csrf',
+        'common.context_processors.process_api_authentication',
+]

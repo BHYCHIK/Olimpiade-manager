@@ -8,7 +8,7 @@ from common.forms import RegisterPersonForm, RegisterAccountForm
 from api import Api
 from django.template import RequestContext
 
-@cache_page(settings.caching_settings['static_page_cache_time'])
+#@cache_page(settings.caching_settings['static_page_cache_time'])
 def index(request):
     return render_to_response('common/index.html', {}, context_instance=RequestContext(request))
 
@@ -62,12 +62,13 @@ def account_login(request):
         raise ValueError() #TODO: 404
 
     post = request.POST
-    login_data = {'login': post['login'], 'password': post['password']}
-    session_id = Api().account_login(login_data)
-    if session_id:
-        print('valid login')
-        request.session['id'] = session_id
-    else:
-        print('invalid login')
+    request.api_user.login(request, post['login'], post['password'])
+    return HttpResponseRedirect('/')
+
+def account_logout(request):
+    if request.method != 'POST':
+        raise ValueError() #TODO: 404
+
+    request.api_user.logout()
     return HttpResponseRedirect('/')
 
