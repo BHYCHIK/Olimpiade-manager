@@ -161,20 +161,20 @@ def onp_get_school_types(request):
     result = _exec_sql_get_func(request, sql)
     return result
 
-def onp_add_criteria_title(request):
-    if not _check_args(request, "short_name", "full_name", "session_id"):
-        return not_enougth_args(request)
+def _add_entry(request, sql, result_field, only_auth = True, admin_only_true = False):
     sess = session.get_session(request["session_id"])
-    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
-        return not_enough_rights(request)
+    #if only_auth:
+        #if not _session_checker(request, sess):
+        #        return not_enough_rights(request)
+        #if admin_only_true and (int(sess["admin_priv"]) == 0):
+        #    return not_enough_rights(request)
     conf = config.Config()
+    mysql_error = None
     try:
         conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
-    except Exception:
-        return sql_error(request)
+    except MySQLdb.Error, e:
+        return sql_error(request, str(mysql_error))
     cur = conn.cursor()
-
-    sql = "INSERT INTO criteria_title(short_name, full_name) VALUES(%(short_name)s, %(full_name)s)"
 
     error_happend = False
     inserted_id = 0
@@ -182,197 +182,57 @@ def onp_add_criteria_title(request):
         cur.execute(sql, request)
         inserted_id = conn.insert_id()
         conn.commit()
-    except Exception:
+    except MySQLdb.Error, e:
          error_happend = True
+         mysql_error = e
     finally:
         cur.close()
         conn.close()
     if error_happend:
-        return sql_error(request)
+        return sql_error(request, str(mysql_error))
 
     result = {}
     result["error_code"] = 0
     result["id"] = int(request["id"])
-    result["criteria_title_id"] = inserted_id
+    result[result_field] = inserted_id
+    return result
+
+def onp_add_criteria_title(request):
+    if not _check_args(request, "short_name", "full_name", "session_id"):
+        return not_enougth_args(request)
+    sql = "INSERT INTO criteria_title(short_name, full_name) VALUES(%(short_name)s, %(full_name)s)"
+    return _add_entry(request, sql, "criteria_title_id", True, True)
     return result
 
 def onp_add_city(request):
     if not _check_args(request, "name", "city_type_id", "session_id"):
         return not_enougth_args(request)
-    sess = session.get_session(request["session_id"])
-    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
-        return not_enough_rights(request)
-    conf = config.Config()
-    try:
-        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
-    except Exception:
-        return sql_error(request)
-    cur = conn.cursor()
-
     sql = "INSERT INTO city(name, city_type_id) VALUES(%(name)s, %(city_type_id)s)"
-
-    error_happend = False
-    inserted_id = 0
-    try:
-        cur.execute(sql, request)
-        inserted_id = conn.insert_id()
-        conn.commit()
-    except Exception:
-         error_happend = True
-    finally:
-        cur.close()
-        conn.close()
-    if error_happend:
-        return sql_error(request)
-
-    result = {}
-    result["error_code"] = 0
-    result["id"] = int(request["id"])
-    result["city_id"] = inserted_id
-    return result
+    return _add_entry(request, sql, "city_id", True, True)
 
 def onp_add_city_type(request):
     if not _check_args(request, "short_title", "full_title", "session_id"):
         return not_enougth_args(request)
-    sess = session.get_session(request["session_id"])
-    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
-        return not_enough_rights(request)
-    conf = config.Config()
-    try:
-        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
-    except Exception:
-        return sql_error(request)
-    cur = conn.cursor()
-
     sql = "INSERT INTO city_type(short_title, full_title) VALUES(%(short_title)s, %(full_title)s)"
-
-    error_happend = False
-    inserted_id = 0
-    try:
-        cur.execute(sql, request)
-        inserted_id = conn.insert_id()
-        conn.commit()
-    except Exception:
-         error_happend = True
-    finally:
-        cur.close()
-        conn.close()
-    if error_happend:
-        return sql_error(request)
-
-    result = {}
-    result["error_code"] = 0
-    result["id"] = int(request["id"])
-    result["city_type_id"] = inserted_id
-    return result
+    return _add_entry(request, sql, "city_type_id", True, True)
 
 def onp_add_school_type(request):
     if not _check_args(request, "short_title", "full_title", "session_id"):
         return not_enougth_args(request)
-    sess = session.get_session(request["session_id"])
-    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
-        return not_enough_rights(request)
-    conf = config.Config()
-    try:
-        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
-    except Exception:
-        return sql_error(request)
-    cur = conn.cursor()
-
     sql = "INSERT INTO school_type(short_title, full_title) VALUES(%(short_title)s, %(full_title)s)"
-
-    error_happend = False
-    inserted_id = 0
-    try:
-        cur.execute(sql, request)
-        inserted_id = conn.insert_id()
-        conn.commit()
-    except Exception:
-         error_happend = True
-    finally:
-        cur.close()
-        conn.close()
-    if error_happend:
-        return sql_error(request)
-
-    result = {}
-    result["error_code"] = 0
-    result["id"] = int(request["id"])
-    result["school_id"] = inserted_id
-    return result
+    return _add_entry(request, sql, "school_type_id", True, True)
 
 def onp_register_person(request):
     if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone", "session_id"):
         return not_enougth_args(request)
-    sess = session.get_session(request["session_id"])
-    #if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
-    #    return not_enough_rights(request)
-    conf = config.Config()
-    try:
-        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
-    except Exception:
-        return sql_error(request)
-    cur = conn.cursor()
-
     sql = "INSERT INTO person(first_name, second_name, surname, gender, email, date_of_birth, description, address, phone) VALUES(%(first_name)s, %(second_name)s, %(surname)s, %(gender)s, %(email)s, %(date_of_birth)s, %(description)s, %(address)s, %(phone)s)"
-
-    error_happend = False
-    inserted_id = 0
-    try:
-        cur.execute(sql, request)
-        inserted_id = conn.insert_id()
-        conn.commit()
-    except Exception:
-         error_happend = True
-    finally:
-        cur.close()
-        conn.close()
-    if error_happend:
-        return sql_error(request)
-
-    result = {}
-    result["error_code"] = 0
-    result["id"] = int(request["id"])
-    result["person_id"] = inserted_id
-    return result
+    return _add_entry(request, sql, "person_id", True, True)
 
 def onp_register_account(request):
     if not _check_args(request, "login", "password", "person_id", "session_id", "admin_priv"):
         return not_enougth_args(request)
-#    sess = session.get_session(request["session_id"])
-#    if not _session_checker(request, sess) or int(sess["admin_priv"]) == 0:
-#        return not_enough_rights(request)
-    conf = config.Config()
-    try:
-        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
-    except Exception:
-        return sql_error(request)
-
-    cur = conn.cursor()
-
     sql = "INSERT INTO account(login, password_hash, person_id, admin_priv) VALUES(%(login)s, md5(%(password)s), %(person_id)s, %(admin_priv)s)"
-
-    error_happend = False
-    inserted_id = 0
-    try:
-        cur.execute(sql, request)
-        conn.commit()
-        inserted_id = conn.insert_id()
-
-    except Exception:
-        error_happend = True
-
-    finally:
-        cur.close()
-        conn.close()
-    if error_happend:
-        return sql_error(request)
-
-    result = {}
-    result["error_code"] = 0
-    result["id"] = int(request["id"])
-    result["account_id"] = inserted_id
-    return result
+    return _add_entry(request, sql, "account_id", True, True)
 
 def onp_request_session(request):
     if not _check_args(request, "login", "password"):
