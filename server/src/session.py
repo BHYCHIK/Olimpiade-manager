@@ -67,11 +67,14 @@ def make_session(request):
         raise MemcacheException()
     return session
 
-
 def get_session(sess_id):
     conf = config.Config();
     mc = memcache.Client([conf.memcached_addr], debug=0)
-    sess_json = mc.get(sess_id.encode('utf-8'))
+    try:
+        sess_json = mc.get(sess_id.encode('utf-8'))
+    except Error, e:
+        logger.Logger.warn("Memcached error: " + str(e))
+        return None
     if not sess_json:
         return None;
     return json.loads(sess_json);
@@ -79,4 +82,7 @@ def get_session(sess_id):
 def delete_session(sess_id):
     conf = config.Config();
     mc = memcache.Client([conf.memcached_addr], debug=0)
-    mc.delete(sess_id.encode('utf-8'))
+    try:
+        mc.delete(sess_id.encode('utf-8'))
+    except Error, e:
+        logger.Logger.warn("Memcached error: " + str(e))

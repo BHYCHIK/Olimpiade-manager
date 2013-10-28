@@ -34,4 +34,4 @@ def internal_error(request):
     return _make_err_dict(500, "Internal server error", int(request["id"]))
 
 def unknown_error():
-    return _make_err_dict(999, "Unknown error", int(request["id"]))
+    return _make_err_dict(999, "Unknown error")
