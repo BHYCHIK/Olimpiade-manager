@@ -70,19 +70,21 @@ def make_session(request):
 def get_session(sess_id):
     conf = config.Config();
     mc = memcache.Client([conf.memcached_addr], debug=0)
+
     try:
-        sess_json = mc.get(sess_id.encode('utf-8'))
-    except Error, e:
-        logger.Logger().warn("Memcached error: " + str(e))
+        res = mc.get(sess_id.encode('utf-8'))
+    except memcache.Client.MemcachedKeyError as error:
+        logger.Logger().error("Memcached error: %s" % error)
         return None
-    if not sess_json:
-        return None;
-    return json.loads(sess_json);
+    if not res:
+        logger.Logger().debug("Memcached doesn't contain key %s" % key)
+        return None
+    return json.loads(res)
 
 def delete_session(sess_id):
     conf = config.Config();
     mc = memcache.Client([conf.memcached_addr], debug=0)
     try:
         mc.delete(sess_id.encode('utf-8'))
-    except Error, e:
+    except memcache.Client.MemcachedKeyError as e:
         logger.Logger().warn("Memcached error: " + str(e))

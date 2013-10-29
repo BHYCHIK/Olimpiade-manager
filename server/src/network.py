@@ -21,7 +21,7 @@ class ONP(LineReceiver):
         self._json_state = 0 # is opened - closed figure brackets
 
     def operate(self):
-        logger.Logger().debug("Proccessing message: %s" % self._buffer);
+        logger.Logger().debug("Processing message: %s" % self._buffer);
         try:
             request = json.loads(self._buffer)
         except ValueError:
@@ -43,15 +43,30 @@ class ONP(LineReceiver):
     def lineReceived(self, line):
         self._buffer = self._buffer + "\r\n" + line
         self._json_state = self._json_state + sum(1 for i in line if i == '{') - sum(1 for i in line if i == '}')
-        if self._json_state == 0:
-            try:
-                reply = json.dumps(self.operate())
-            except Exception:
-                logger.Logger().error("UNKNOWN ERROR HAPPENED: %s" % traceback.print_exc())
-                reply = json.dumps(unknown_error())
-            self._buffer = ""
-            if reply != None:
-                self.sendLine(reply)
+        if self._json_state != 0:
+            return
+        log = logger.Logger()
+        try:
+            result = self.operate()
+        except Exception:
+            log.error("UNKNOWN ERROR HAPPENED: %s" % traceback.print_exc())
+            result = unknown_error()
+        self._buffer = ""
+        error = result["error_code"]
+        try:
+            reply = json.dumps(result)
+        except ValueError:
+            log.error("Error of serializing result to JSON: %s" % traceback.print_exc())
+            reply = '{"error_code": 0, "error_text": "serializing to JSON error"}'
+            self.sendLine(reply)
+            return
+
+        self.sendLine(reply)
+
+        if error == 0:
+            log.debug("Server sent response to client: [%s]" % reply)
+        else:
+            log.error("Server sent error to client: [%s]" % reply)
 
 class ONPFactory(Factory):
     def buildProtocol(self, address):

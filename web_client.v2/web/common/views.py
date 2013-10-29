@@ -26,7 +26,7 @@ def register_person(request):
     return render_to_response('common/forms/register_person.html', c, context_instance=RequestContext(request))
 
 def register_account(request):
-    api = Api('')
+    api = Api(request.session['id'])
     persons = api.get_all_persons()
     if request.method == 'POST':
         form = RegisterAccountForm(persons, request.POST)

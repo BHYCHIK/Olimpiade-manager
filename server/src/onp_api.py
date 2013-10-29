@@ -94,7 +94,7 @@ def onp_check_session(request):
     sess = session.get_session(request["session_id"])
     if not _session_checker(request, sess):
         return not_enough_rights(request)
-    return '{"error_code": 0, "id": %d}' % int(request["id"])
+    return {"error_code": 0, "id": request["id"]}
 
 def onp_get_people(request):
     if not _check_args(request, "from", "count", "session_id"):

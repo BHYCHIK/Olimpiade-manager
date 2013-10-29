@@ -315,7 +315,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`account` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`account` (
-  `id` INT NOT NULL ,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `login` VARCHAR(45) NOT NULL ,
   `password_hash` VARCHAR(128) NOT NULL ,
   `person_id` INT UNSIGNED NOT NULL ,
