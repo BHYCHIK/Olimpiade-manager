@@ -99,9 +99,9 @@ def onp_check_session(request):
 def onp_get_people(request):
     if not _check_args(request, "from", "count", "session_id"):
         return not_enougth_args(request)
-#    sess = session.get_session(request["session_id"])
-#    if not _session_checker(request, sess):
-#        return not_enough_rights(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
 
     sql = "SELECT id, first_name, second_name, surname, gender, email, date_of_birth, description, address, phone from person order by surname, first_name, second_name, id limit %(from)s, %(count)s"
     result = _exec_sql_get_func(request, sql)

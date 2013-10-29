@@ -11,6 +11,8 @@ urlpatterns = patterns('',
     url(r'^register_person$', 'common.views.register_person'),
     url(r'^register_account$', 'common.views.register_account'),
     url(r'^thanks$', 'common.views.thanks'),
+    url(r'^about$', 'common.views.about'),
+    url(r'^persons$', 'common.views.persons'),
     url(r'^login$', 'common.views.account_login'),
     url(r'^logout$', 'common.views.account_logout'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

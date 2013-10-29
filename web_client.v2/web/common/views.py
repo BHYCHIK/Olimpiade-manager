@@ -68,3 +68,14 @@ def account_logout(request):
     request.api_user.logout()
     return HttpResponseRedirect('/')
 
+def about(request):
+    return render_to_response('common/about.html', context_instance=RequestContext(request))
+
+def persons(request):
+    print('in persons')
+    if not request.api_user.is_authenticated:
+        print('ddddddddd')
+        return render_to_response('common/no_access.html', context_instance=RequestContext(request))
+    c = {'persons': Api(request.session['id']).get_all_persons()}
+    return render_to_response('common/persons.html', c, context_instance=RequestContext(request))
+

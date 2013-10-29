@@ -13,6 +13,7 @@ class ApiUser(object):
             self._is_authenticated = api.check_session()
         else:
             self._is_authenticated = False
+        print('Us authenticated = ' + str(self._is_authenticated))
     def login(self, request, login, password):
         session_id = Api().account_login({'login': login, 'password': password})
         if session_id:
@@ -82,7 +83,7 @@ class Api(object):
         MAX_PERSONS = 1000
         req = {'from': 0, 'count': MAX_PERSONS}
         res = self._send_req('onp_get_people', req)
-        return res['data']
+        return res['data'] if res and 'data' in res else None 
 
     def check_session(self):
         return self._send_req('onp_check_session', {})
