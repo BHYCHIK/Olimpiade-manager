@@ -77,7 +77,6 @@ def get_session(sess_id):
         logger.Logger().error("Memcached error: %s" % error)
         return None
     if not res:
-        logger.Logger().debug("Memcached doesn't contain key %s" % key)
         return None
     return json.loads(res)
 
