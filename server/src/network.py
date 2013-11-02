@@ -12,6 +12,80 @@ from onp_api import *
 import logger
 import json
 import traceback
+import StringIO
+import struct
+
+class Iproto:
+    def __init__(self):
+        _sync = 0
+
+    class TypeToIprotoCodes:
+        dict_type = 1
+        string_type = 2
+        list_type = 3
+        int_type = 4
+        float_type = 5
+        none_type = 6
+
+    def iproto_serialize(self, data):
+        if isinstance(data, dict):
+            return self._iproto_serialize_dict(data)
+        elif isinstance(data, int):
+            return self._iproto_serialize_int(data)
+        elif isinstance(data, float):
+            return self._iproto_serialize_float(data)
+        elif isinstance(data, str):
+            return self._iproto_serialize_string(data)
+        elif isinstance(data, list) or isinstance(data, tuple):
+            return self._iproto_serialize_list(data)
+        elif isinstance(data, int):
+            return self._iproto_serialize_int(data)
+        elif isinstance(data, bool):
+            return self._iproto_serialize_bool(data)
+        elif data is None:
+            return self._iproto_serialize_none()
+
+    def _iproto_serialize_dict(self, data):
+        serialized = struct.pack("!BQ", self.TypeToIprotoCodes.dict_type, len(data))
+        for key in data:
+            serialized = serialized + self.iproto_serialize(key) + self.iproto_serialize(key)
+        return serialized
+
+    def _iproto_serialize_int(self, data):
+        serialized = struct.pack("!Bq", self.TypeToIprotoCodes.int_type, data)
+        return serialized
+
+    def _iproto_serialize_none(self):
+        serialized = struct.pack("!B", self.TypeToIprotoCodes.none_type)
+        return serialized
+
+    def _iproto_serialize_bool(self, data):
+        serialized = struct.pack("!B?", self.TypeToIprotoCodes.int_type, data)
+        return serialized
+
+    def _iproto_serialize_float(self, data):
+        serialized = struct.pack("!Bd", self.TypeToIprotoCodes.int_type, data)
+        return serialized
+
+    def _iproto_serialize_string(self, data):
+        str_len = len(data)
+        serialized = struct.pack("!BB%ss" % str_len, TypeToIprotoCodes.int_type, str_len, data)
+        return serialized
+
+    def _iproto_serialize_list(self, data):
+        serialized = struct.pack("!BQ", TypeToIprotoCodes.dict_type, len(data))
+        for element in data:
+            serialized = serialized + self._iproto_serialize(element)
+        return serialized
+
+    def iproto_uniform_packet(self, data):
+        body = iproto_serialize(data);
+        header = struct.pack("!ii", sync, len(body))
+        if self._sync == (2 ** 32 - 1):
+            self._sync = 0
+        else:
+            self._sync = self._sync + 1
+        return header + body
 
 # ONP - Olympiade network protocol
 class ONP(LineReceiver):
@@ -19,6 +93,7 @@ class ONP(LineReceiver):
         self.clientAddress = address
         self._buffer = ""
         self._json_state = 0 # is opened - closed figure brackets
+        self._iproto_maker = Iproto()
 
     def operate(self):
         logger.Logger().debug("Processing message: %s" % self._buffer);
