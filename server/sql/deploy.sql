@@ -118,7 +118,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`criteria_title` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`criteria_title` (
-  `id` INT NOT NULL ,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `short_name` VARCHAR(45) NOT NULL ,
   `full_name` TEXT NOT NULL ,
   PRIMARY KEY (`id`) )

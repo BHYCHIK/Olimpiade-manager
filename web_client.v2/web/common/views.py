@@ -91,3 +91,13 @@ def add_city_type(request, form_data, api):
 def city_types(request, api):
     c = {'types': api.get_city_types(), 'header': 'Зарегистрированные типы городов'}
     return render_to_response('common/types.html', c, context_instance=RequestContext(request))
+
+@ApiUser.login_required
+@simple_form(form_cls=AddCriteriaTitleForm, redirect='/thanks?from=successful_add')
+def add_criteria_title(request, form_data, api):
+    return api.add_criteria_title(form_data)
+
+@ApiUser.login_required
+def criteria_titles(request, api):
+    c = {'criterias': api.get_criteria_titles(), 'header': 'Зарегистрированные критерии'}
+    return render_to_response('common/criterias.html', c, context_instance=RequestContext(request))

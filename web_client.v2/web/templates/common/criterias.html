@@ -1,0 +1,18 @@
+{% extends 'common/base.html' %}
+{% block content %}
+<h1>Список зарегистрированных критериев</h1>
+<table class="table table-hover">
+  <thead>
+    <th>Краткое имя</th>
+    <th>Полное имя</th>
+  </thead>
+  <tbody>
+    {% for criteria in criterias %}
+    <tr>
+    <td>{{ criteria.short_name }}</td>
+    <td>{{ criteria.full_name }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

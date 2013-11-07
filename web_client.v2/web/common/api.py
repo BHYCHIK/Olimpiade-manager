@@ -103,8 +103,13 @@ class Api(object):
     def get_school_types(self):
         r = self._send_req('onp_get_school_types', {'from': 0, 'count': self.MAX_ELEMENTS})
         return r and r.get('data', None)
-    def add_city_type(self, school_type):
-        return self._send_req('onp_add_city_type', school_type)
+    def add_city_type(self, city_type):
+        return self._send_req('onp_add_city_type', city_type)
     def get_city_types(self):
         r = self._send_req('onp_get_city_types', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
+    def add_criteria_title(self, title):
+        return self._send_req('onp_add_criteria_title', title)
+    def get_criteria_titles(self):
+        r = self._send_req('onp_get_criteria_titles', {'from': 0, 'count': self.MAX_ELEMENTS})
         return r and r.get('data', None)

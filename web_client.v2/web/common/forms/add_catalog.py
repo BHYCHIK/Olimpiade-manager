@@ -15,4 +15,11 @@ class AddCityTypeForm(WebForm):
     submit_name = "Добавить"
 
     short_title = forms.CharField(label='Краткое название', max_length=45)
-    full_title = forms.CharField(label='Полное название', max_length=2048)
+    full_title = forms.CharField(label='Полное название', max_length=200)
+
+class AddCriteriaTitleForm(WebForm):
+    form_name = "Добавление нового критерия"
+    submit_name = "Добавить"
+
+    short_name = forms.CharField(label='Краткое название', max_length=45)
+    full_name = forms.CharField(label='Полное название')
