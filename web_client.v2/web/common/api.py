@@ -15,7 +15,7 @@ class ApiUser(object):
             self._is_authenticated = api.check_session()
         else:
             self._is_authenticated = False
-        print('Us authenticated = ' + str(self._is_authenticated))
+        print('[%s]: is authenticated = %s' % (request.path, str(self._is_authenticated)))
     def login(self, request, login, password):
         session_id = Api().account_login({'login': login, 'password': password})
         if session_id:
