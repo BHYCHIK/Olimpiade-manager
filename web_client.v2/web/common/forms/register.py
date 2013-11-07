@@ -18,8 +18,8 @@ class RegisterPersonForm(forms.Form):
     )
     date_widget = DateTimePicker(options={"format": "dd.MM.yyyy", "pickTime": False}, attrs={'placeholder': '01.01.1990'})
 
-    first_name = forms.CharField(error_messages=msg, label='Имя', max_length=20, required=True)
     surname = forms.CharField(error_messages=msg, label='Фамилия', max_length=30, required=True)
+    first_name = forms.CharField(error_messages=msg, label='Имя', max_length=20, required=True)
     second_name = forms.CharField(error_messages=msg, label='Отчество', max_length=20, required=False)
     gender = forms.ChoiceField(label='Пол', choices=gender_choices, required=False)
     email = forms.EmailField(error_messages=msg, widget=forms.TextInput(attrs={'placeholder':'example@mail.ru'}),

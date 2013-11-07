@@ -3,6 +3,8 @@ import time
 import settings
 import socket
 import json
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 class ApiUser(object):
     def __init__(self, request):
@@ -24,6 +26,16 @@ class ApiUser(object):
         return Api(self._session_id).logout()
     def is_authenticated(self):
         return self._is_authenticated
+
+    @staticmethod
+    def login_required(func):
+        def wrapper(request, *args , **kwargs):
+            if request.api_user.is_authenticated():
+                return func(request, *args, **kwargs)
+            return render_to_response('common/no_access.html',
+                                      context_instance=RequestContext(request))
+        return wrapper
+
 
 class Api(object):
     ERR_CODE_OK = 0

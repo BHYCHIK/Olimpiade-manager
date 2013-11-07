@@ -5,13 +5,14 @@ from django.views.decorators.cache import cache_page
 from django.http import HttpResponseRedirect
 import settings
 from common.forms import RegisterPersonForm, RegisterAccountForm
-from api import Api
+from api import Api, ApiUser
 from django.template import RequestContext
 
 @cache_page(settings.caching_settings['static_page_cache_time'])
 def index(request):
     return render_to_response('common/index.html', {}, context_instance=RequestContext(request))
 
+@ApiUser.login_required
 def register_person(request):
     if request.method == 'POST':
         form = RegisterPersonForm(request.POST)
@@ -25,6 +26,7 @@ def register_person(request):
     c = {'form': form}
     return render_to_response('common/forms/register_person.html', c, context_instance=RequestContext(request))
 
+@ApiUser.login_required
 def register_account(request):
     api = Api(request.session['id'])
     persons = api.get_all_persons()
@@ -71,11 +73,8 @@ def account_logout(request):
 def about(request):
     return render_to_response('common/about.html', context_instance=RequestContext(request))
 
+@ApiUser.login_required
 def persons(request):
-    print('in persons')
-    if not request.api_user.is_authenticated:
-        print('ddddddddd')
-        return render_to_response('common/no_access.html', context_instance=RequestContext(request))
     c = {'persons': Api(request.session['id']).get_all_persons()}
     return render_to_response('common/persons.html', c, context_instance=RequestContext(request))
 
