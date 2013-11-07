@@ -9,6 +9,7 @@
     <th>Отчество</th>
     <th>Адрес</th>
     <th>Телефон</th>
+    <th>Доп. информация</th>
   </thead>
   <tbody>
     {% for person in persons %}
@@ -19,6 +20,7 @@
     <td>{{ person.second_name }}</td>
     <td>{{ person.address }}</td>
     <td>{{ person.phone }}</td>
+    <td>{{ person.description }}</td>
     </tr>
     {% endfor %}
   </tbody>

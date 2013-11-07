@@ -5,17 +5,16 @@
 {% endblock %}
 
 {% block content %}
-<h1>Регистрация нового аккаунта</h1>
+<h1>{{ form.form_name }}</h1>
 {% load crispy_forms_tags %}
 
 <form role="form" class="form-horizontal" method="post">
   {% csrf_token %}
   {{ form|crispy }}
-  <div class="pull-right"><button type="submit" class="btn btn-primary btn-lg">Зарегистрировать аккаунт</button></div>
+  <div class="pull-right"><button type="submit" class="btn btn-primary btn-lg">{{ form.submit_name }}</button></div>
 </form>
 {% endblock %}
 
 {% block js %}
 {{ form.media.js }}
 {% endblock %}
-

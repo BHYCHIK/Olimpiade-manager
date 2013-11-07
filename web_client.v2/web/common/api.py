@@ -29,9 +29,10 @@ class ApiUser(object):
 
     @staticmethod
     def login_required(func):
-        def wrapper(request, *args , **kwargs):
+        def wrapper(request, *args, **kwargs):
             if request.api_user.is_authenticated():
-                return func(request, *args, **kwargs)
+                api = Api(request.session['id'])
+                return func(request, api, *args, **kwargs)
             return render_to_response('common/no_access.html',
                                       context_instance=RequestContext(request))
         return wrapper
@@ -39,6 +40,7 @@ class ApiUser(object):
 
 class Api(object):
     ERR_CODE_OK = 0
+    MAX_ELEMENTS = 1000
 
     def __init__(self, session_id=None):
         self._session_id = session_id
@@ -86,19 +88,23 @@ class Api(object):
 
     def register_account(self, reg_data):
         return self._send_req('onp_register_account', reg_data)
-
     def account_login(self, login_data):
         res = self._send_req('onp_request_session', login_data)
         return res['session_id'] if res else None
-
     def get_all_persons(self):
-        MAX_PERSONS = 1000
-        req = {'from': 0, 'count': MAX_PERSONS}
-        res = self._send_req('onp_get_people', req)
-        return res['data'] if res and 'data' in res else None 
-
+        res = self._send_req('onp_get_people', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return res and res.get('data', None)
     def check_session(self):
         return self._send_req('onp_check_session', {})
-
     def logout(self):
         return self._send_req('onp_logout', {})
+    def add_school_type(self, school_type):
+        return self._send_req('onp_add_school_type', school_type)
+    def get_school_types(self):
+        r = self._send_req('onp_get_school_types', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
+    def add_city_type(self, school_type):
+        return self._send_req('onp_add_city_type', school_type)
+    def get_city_types(self):
+        r = self._send_req('onp_get_city_types', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)

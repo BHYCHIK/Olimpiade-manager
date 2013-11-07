@@ -15,4 +15,8 @@ urlpatterns = patterns('',
     url(r'^persons$', 'common.views.persons'),
     url(r'^login$', 'common.views.account_login'),
     url(r'^logout$', 'common.views.account_logout'),
+    url(r'^add_school_type$', 'common.views.add_school_type'),
+    url(r'^school_types$', 'common.views.school_types'),
+    url(r'^add_city_type$', 'common.views.add_city_type'),
+    url(r'^city_types$', 'common.views.city_types'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

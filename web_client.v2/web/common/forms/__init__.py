@@ -1,1 +1,2 @@
-from register import RegisterPersonForm, RegisterAccountForm
+from .register import *
+from .add_catalog import *

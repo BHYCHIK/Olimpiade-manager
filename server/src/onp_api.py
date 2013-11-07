@@ -155,7 +155,7 @@ def onp_get_school_types(request):
     if not _session_checker(request, sess):
         return not_enough_rights(request)
 
-    sql = "SELECT id, short_title, full_title, full_name FROM school_type ORDER BY id LIMIT %(from)s, %(count)s"
+    sql = "SELECT id, short_title, full_title FROM school_type ORDER BY id LIMIT %(from)s, %(count)s"
 
     result = _exec_sql_get_func(request, sql)
     return result

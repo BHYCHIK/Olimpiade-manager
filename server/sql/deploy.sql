@@ -64,7 +64,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`school_type` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`school_type` (
-  `id` INT NOT NULL ,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `short_title` VARCHAR(45) NOT NULL ,
   `full_title` VARCHAR(2048) NOT NULL ,
   PRIMARY KEY (`id`) )
