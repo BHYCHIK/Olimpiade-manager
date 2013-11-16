@@ -9,6 +9,7 @@ from twisted.internet import ssl, reactor
 from config import Config
 from error_handlers import *
 from onp_api import *
+from twisted.internet.task import LoopingCall
 import logger
 import json
 import traceback
@@ -17,6 +18,7 @@ import struct
 import threading
 import time
 import socket
+import sys
 
 # ONP - Olympiade network protocol
 class ONP(LineReceiver):
@@ -95,16 +97,14 @@ def broadcast_address():
     cs.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     broadcast_data = xor_crypt_string(conf.broadcast_phrase, conf.broadcast_pass, True, False)
 
-    while True:
-        logger.Logger().info("Sending: %s" % broadcast_data)
-        cs.sendto(broadcast_data, ('255.255.255.255', conf.broadcast_listening_port))
-        time.sleep(conf.broadcast_pause)
+    logger.Logger().info("Sending: %s" % broadcast_data)
+    cs.sendto(broadcast_data, ('255.255.255.255', conf.broadcast_listening_port))
+    cs.close()
 
 def start_server():
-    broadcasting_thread = threading.Thread(target = broadcast_address)
-    broadcasting_thread.start()
-    time.sleep(1)
     conf = Config()
+    lc = LoopingCall(broadcast_address)
+    lc.start(conf.broadcast_pause)
     factory = ONPFactory()
     if conf.ssl_enabled:
         reactor.listenSSL(conf.port, factory, ssl.DefaultOpenSSLContextFactory(conf.ssl_private_key, conf.ssl_certificate))

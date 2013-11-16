@@ -5,9 +5,12 @@
 import config
 import time
 import os
+import threading
 
 class Logger:
     _instance = None
+    _mutex = None
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super(Logger, cls).__new__(
@@ -17,8 +20,11 @@ class Logger:
     def __init__(self):
         conf = config.Config()
         log_file_dir = os.path.dirname(conf.log_file)
+        self._mutex = threading.Lock()
+        self._mutex.acquire()
         if not os.path.isdir(log_file_dir):
             os.makedirs(log_file_dir)
+        self._mutex.release()
 
     def debug(self, message):
         conf = config.Config()
@@ -42,10 +48,12 @@ class Logger:
 
     def _real_logging(self, level, message):
         conf = config.Config()
+        self._mutex.acquire()
         log_file = open(conf.log_file, "at");
         log_file.write("[%s] at [%s]: %s%s" % (level, time.ctime(), message, os.linesep))
         log_file.close()
 
         if not conf.daemonize and conf.stdout_logging:
             print "[%s] at [%s]: %s" % (level, time.ctime(), message)
+        self._mutex.release()
 
