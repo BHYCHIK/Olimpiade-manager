@@ -124,6 +124,16 @@ def onp_get_competitions(request):
     result = _exec_sql_get_func(request, sql)
     return result
 
+def onp_get_schools(request):
+    if not _check_args(request, "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+    sql = "SELECT id, title, number, address, city_id, type_id from competition order by id limit %(from)s, %(count)s"
+    result = _exec_sql_get_func(request, sql)
+    return result
+
 def onp_get_city_types(request):
     if not _check_args(request, "from", "count", "session_id"):
         return not_enougth_args(request)
@@ -219,6 +229,12 @@ def onp_add_city(request):
     sql = "INSERT INTO city(name, city_type_id) VALUES(%(name)s, %(city_type_id)s)"
     return _add_entry(request, sql, "city_id", True, True)
 
+def onp_add_school(request):
+    if not _check_args(request, "name", "city_type_id", "session_id"):
+        return not_enougth_args(request)
+    sql = "INSERT INTO school(title, number, address, city_id, type_id) VALUES(%(title)s, %(number)s, %(address)s, %(city_id)s, %(type_id)s)"
+    return _add_entry(request, sql, "school_id", True, True)
+
 def onp_add_city_type(request):
     if not _check_args(request, "short_title", "full_title", "session_id"):
         return not_enougth_args(request)
@@ -285,5 +301,7 @@ api_functions = {
     "onp_get_school_types": onp_get_school_types,
     "onp_start_competition": onp_start_competition,
     "onp_get_competitions": onp_get_competitions,
+    "onp_get_schools": onp_get_schools,
+    "onp_add_school": onp_add_school,
     "onp_request_session": onp_request_session
 }

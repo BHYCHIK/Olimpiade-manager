@@ -47,7 +47,7 @@ DROP TABLE IF EXISTS `iu7_step`.`city` ;
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`city` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(45) NOT NULL ,
-  `city_type_id` INT UNSIGNED ZEROFILL NOT NULL ,
+  `city_type_id` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_city_to_city_type` (`city_type_id` ASC) ,
   CONSTRAINT `fk_city_to_city_type`
