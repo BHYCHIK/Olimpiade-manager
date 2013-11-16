@@ -130,3 +130,9 @@ class Api(object):
     def get_criteria_titles(self):
         r = self._send_req('onp_get_criteria_titles', {'from': 0, 'count': self.MAX_ELEMENTS})
         return r and r.get('data', None)
+    def get_competitions(self):
+        r = self._send_req('onp_get_competitions', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
+    def get_schools(self):
+        r = self._send_req('onp_get_schools', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
