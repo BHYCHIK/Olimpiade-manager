@@ -27,7 +27,8 @@ def _fetch_one_dict(cursor):
     res = {}
 
     for (name, value) in zip(desc, data) :
-        res[name[0]] = value
+        print type(value)
+        res[name[0]] = value.decode('utf-8') if isinstance(value, str) else value
 
     return res
 
@@ -199,7 +200,7 @@ def onp_get_competition_pariticipants(request):
     if not _session_checker(request, sess):
         return not_enough_rights(request)
 
-    sql = "SELECT first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where competition_id = %(competition_id)s) limit %(from)s, %(count)s"
+    sql = "SELECT first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where role = 'participant' competition_id = %(competition_id)s) limit %(from)s, %(count)s"
 
     result = _exec_sql_get_func(request, sql)
     return result
