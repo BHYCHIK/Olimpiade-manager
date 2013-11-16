@@ -23,8 +23,6 @@ class Config:
 
     broadcast_listening_port = 27016
     broadcast_pause = 0.5
-    broadcast_phrase = "Hello, world!"
-    broadcast_pass = "qwerty40"
 
     ssl_enabled = False
     ssl_private_key = "ssl/cert.key"

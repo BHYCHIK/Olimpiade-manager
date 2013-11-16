@@ -79,25 +79,14 @@ class ONPFactory(Factory):
     def buildProtocol(self, address):
         return ONP(address)
 
-def xor_crypt_string(data, key, encode=False, decode=False):
-    from itertools import izip, cycle
-    import base64
-    if decode:
-        data = base64.decodestring(data)
-    xored = ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(data, cycle(key)))
-    if encode:
-        return base64.encodestring(xored).strip()
-    return xored
-
 def broadcast_address():
     conf = Config()
     cs = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     cs.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     cs.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    broadcast_data = xor_crypt_string(conf.broadcast_phrase, conf.broadcast_pass, True, False)
 
     logger.Logger().info("Sending: %s" % broadcast_data)
-    cs.sendto(broadcast_data, ('255.255.255.255', conf.broadcast_listening_port))
+    cs.sendto("a", ('255.255.255.255', conf.broadcast_listening_port))
     cs.close()
 
 def start_server():
