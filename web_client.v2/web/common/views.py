@@ -102,4 +102,7 @@ def criteria_titles(request, api):
     c = {'criterias': api.get_criteria_titles(), 'header': 'Зарегистрированные критерии'}
     return render_to_response('common/criterias.html', c, context_instance=RequestContext(request))
 
-
+@ApiUser.admin_required
+def cities(request, api):
+    c = {'cities': api.get_cities(), 'header': 'Зарегистрированные критерии'}
+    return render_to_response('common/cities.html', c, context_instance=RequestContext(request))
