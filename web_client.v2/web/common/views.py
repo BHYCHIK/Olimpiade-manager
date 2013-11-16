@@ -23,12 +23,12 @@ def simple_form(form_cls, redirect):
         return wrapped_f
     return wrap
 
-@ApiUser.login_required
+@ApiUser.admin_required
 @simple_form(form_cls=RegisterPersonForm, redirect='/thanks?from=reg_person')
 def register_person(request, form_data, api):
     return api.register_person(form_data)
 
-@ApiUser.login_required
+@ApiUser.admin_required
 def register_account(request, api):
     form = RegisterAccountForm(api.get_all_persons(), request.POST or None)
     if form.is_valid():
@@ -67,37 +67,39 @@ def account_logout(request):
 def about(request):
     return render_to_response('common/about.html', context_instance=RequestContext(request))
 
-@ApiUser.login_required
+@ApiUser.admin_required
 def persons(request, api):
     c = {'persons': api.get_all_persons()}
     return render_to_response('common/persons.html', c, context_instance=RequestContext(request))
 
-@ApiUser.login_required
+@ApiUser.admin_required
 @simple_form(form_cls=AddSchoolTypeForm, redirect='/thanks?from=successful_add')
 def add_school_type(request, form_data, api):
     return api.add_school_type(form_data)
 
-@ApiUser.login_required
+@ApiUser.admin_required
 def school_types(request, api):
     c = {'types': api.get_school_types(), 'header': 'Зарегистрированные типы школ'}
     return render_to_response('common/types.html', c, context_instance=RequestContext(request))
 
-@ApiUser.login_required
+@ApiUser.admin_required
 @simple_form(form_cls=AddCityTypeForm, redirect='/thanks?from=successful_add')
 def add_city_type(request, form_data, api):
     return api.add_city_type(form_data)
 
-@ApiUser.login_required
+@ApiUser.admin_required
 def city_types(request, api):
     c = {'types': api.get_city_types(), 'header': 'Зарегистрированные типы городов'}
     return render_to_response('common/types.html', c, context_instance=RequestContext(request))
 
-@ApiUser.login_required
+@ApiUser.admin_required
 @simple_form(form_cls=AddCriteriaTitleForm, redirect='/thanks?from=successful_add')
 def add_criteria_title(request, form_data, api):
     return api.add_criteria_title(form_data)
 
-@ApiUser.login_required
+@ApiUser.admin_required
 def criteria_titles(request, api):
     c = {'criterias': api.get_criteria_titles(), 'header': 'Зарегистрированные критерии'}
     return render_to_response('common/criterias.html', c, context_instance=RequestContext(request))
+
+
