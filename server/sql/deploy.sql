@@ -290,15 +290,15 @@ DROP TABLE IF EXISTS `iu7_step`.`criteria_score` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`criteria_score` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `range_id` INT UNSIGNED NOT NULL ,
+  `criteria_title_id` INT NOT NULL ,
   `score_id` INT UNSIGNED NOT NULL ,
   `value` TINYINT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) ,
-  INDEX `fk_criteria_score_to_range` (`range_id` ASC) ,
+  INDEX `fk_criteria_score_to_criteria_title` (`criteria_title_id` ASC) ,
   INDEX `fk_criteria_score_to_score` (`score_id` ASC) ,
-  CONSTRAINT `fk_criteria_score_to_range`
-    FOREIGN KEY (`range_id` )
-    REFERENCES `iu7_step`.`range` (`id` )
+  CONSTRAINT `fk_criteria_score_to_criteria_title`
+    FOREIGN KEY (`criteria_title_id` )
+    REFERENCES `iu7_step`.`criteria_title` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_criteria_score_to_score`
