@@ -99,10 +99,24 @@ def add_criteria_title(request, form_data, api):
 
 @ApiUser.admin_required
 def criteria_titles(request, api):
-    c = {'criterias': api.get_criteria_titles(), 'header': 'Зарегистрированные критерии'}
+    c = {'criterias': api.get_criteria_titles()}
     return render_to_response('common/criterias.html', c, context_instance=RequestContext(request))
 
 @ApiUser.admin_required
 def cities(request, api):
-    c = {'cities': api.get_cities(), 'header': 'Зарегистрированные критерии'}
+    c = {'cities': api.get_cities()}
     return render_to_response('common/cities.html', c, context_instance=RequestContext(request))
+
+@ApiUser.admin_required
+def competitions(request, api):
+    competitions = api.get_competitions()
+    data = []
+    for competitions in competitions:
+        participants = api.get_competition_participants(competition['id'])
+        data.append({'participants': participants, 'participants_count': len(participants)}
+    return render_to_response('common/competitions.html', data, context_instance=RequestContext(request))
+
+@ApiUser.admin_required
+@simple_form(form_cls=AddCriteriaTitleForm, redirect='/thanks?from=successful_add')
+def start_competition(request, form_data, api):
+    return api.add_competition(form_data)
