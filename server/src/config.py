@@ -21,6 +21,11 @@ class Config:
     memcached_addr = "127.0.0.1:11211"
     session_timeout = 36000
 
+    broadcast_listening_port = 27016
+    broadcast_pause = 5
+    broadcast_phrase = "Hello, world!"
+    broadcast_pass = "qwerty40"
+
     ssl_enabled = False
     ssl_private_key = "ssl/cert.key"
     ssl_certificate = "ssl/cert.crt"
