@@ -6,23 +6,11 @@ import json
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-def xor_crypt_string(data, key, encode=False, decode=False):
-    from itertools import izip, cycle
-    import base64
-    if decode:
-        data = base64.decodestring(data)
-    xored = ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(data, cycle(key)))
-    if encode:
-        return base64.encodestring(xored).strip()
-    return xored
-
 def get_backend_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('0.0.0.0', settings.BROADCAST_PORT))
-    data, addr = s.recvfrom(8192)
-    decrypted_data = xor_crypt_string(data, settings.BROADCAST_PASS, False, True)
-    print('Got from broadcasting %s, after decryption - %s' % (data, decrypted_data))
+    data, addr = s.recvfrom(1)
     s.close()
     return (addr[0], settings.BACKEND_PORT)
 

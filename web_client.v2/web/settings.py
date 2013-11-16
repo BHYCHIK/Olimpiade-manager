@@ -160,7 +160,7 @@ caching_settings = {
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 BACKEND_PORT = 5000
-BACKEND_HOST = ('127.0.0.1', BACKEND_PORT)
+BACKEND_HOST = ('xyi', BACKEND_PORT)
 BACKEND_TIMEOUT = 5.5
 
 TEMPLATE_CONTEXT_PROCESSORS = [tcp for tcp in DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS if tcp != 'django.contrib.auth.context_processors.auth'] + [
