@@ -22,7 +22,7 @@ class Config:
     session_timeout = 36000
 
     broadcast_listening_port = 27016
-    broadcast_pause = 5
+    broadcast_pause = 0.5
     broadcast_phrase = "Hello, world!"
     broadcast_pass = "qwerty40"
 

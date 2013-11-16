@@ -6,17 +6,39 @@ import json
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+def xor_crypt_string(data, key, encode=False, decode=False):
+    from itertools import izip, cycle
+    import base64
+    if decode:
+        data = base64.decodestring(data)
+    xored = ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(data, cycle(key)))
+    if encode:
+        return base64.encodestring(xored).strip()
+    return xored
+
+def get_backend_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(('0.0.0.0', settings.BROADCAST_PORT))
+    data, addr = s.recvfrom(8192)
+    decrypted_data = xor_crypt_string(data, settings.BROADCAST_PASS, False, True)
+    print('Got from broadcasting %s, after decryption - %s' % (data, decrypted_data))
+    s.close()
+    return settings.BACKEND_HOST
+
 class ApiUser(object):
     def __init__(self, request):
         if 'id' in request.session:
             session_id = request.session['id']
             self._session_id = session_id
-            api = Api(session_id)
+            api = Api(session_id, get_backend_ip())
             self._is_authenticated = api.check_session()
             self._is_admin = True if request.session['admin_priv'] else False
         else:
             self._is_authenticated = False
         print('[%s]: is authenticated = %s' % (request.path, str(self._is_authenticated)))
+    def get_api(self):
+        return self._api
     def login(self, request, login, password):
         session_id, admin_priv = Api().account_login({'login': login, 'password': password})
         if session_id:
@@ -35,8 +57,7 @@ class ApiUser(object):
     def login_required(func):
         def wrapper(request, *args, **kwargs):
             if request.api_user.is_authenticated():
-                api = Api(request.session['id'])
-                return func(request, api, *args, **kwargs)
+                return func(request, request.api_user.get_api(), *args, **kwargs)
             return render_to_response('common/no_access.html',
                                       context_instance=RequestContext(request))
         return wrapper
@@ -45,8 +66,7 @@ class ApiUser(object):
     def admin_required(func):
         def wrapper(request, *args, **kwargs):
             if request.api_user.is_admin():
-                api = Api(request.session['id'])
-                return func(request, api, *args, **kwargs)
+                return func(request, request.api_user.get_api(), *args, **kwargs)
             return render_to_response('common/no_access.html',
                                       context_instance=RequestContext(request))
         return wrapper
@@ -56,15 +76,16 @@ class Api(object):
     ERR_CODE_OK = 0
     MAX_ELEMENTS = 1000
 
-    def __init__(self, session_id=None):
+    def __init__(self, session_id=None, backend_ip=None):
         self._session_id = session_id
+        self.backend_ip = backend_ip or settings.BACKEND_HOST
 
     def _send_req(self, cmd, data):
         json_data = dict(data)
         json_data.update({'id': 1, 'cmd': cmd, 'ip_addr': '127.0.0.1', 'session_id': self._session_id})
         print('[%s]: frontend is trying to send %s to backend' % (cmd, json.dumps(json_data)))
         try:
-            sock = socket.create_connection(settings.BACKEND_HOST, settings.BACKEND_TIMEOUT)
+            sock = socket.create_connection(self.backend_ip, settings.BACKEND_TIMEOUT)
             sock.send(json.dumps(json_data) + '\r\n')
             data = ' '
             response = ''

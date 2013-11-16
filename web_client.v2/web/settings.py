@@ -166,3 +166,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [tcp for tcp in DEFAULT_SETTINGS.TEMPLATE_CONTEXT_
         'django.core.context_processors.csrf',
         'common.context_processors.process_api_authentication',
 ]
+
+BROADCAST_PORT = 27016
+BROADCAST_PHRASE = 'Hello, world!'
+BROADCAST_PASS = 'qwerty40'
