@@ -200,6 +200,30 @@ def onp_get_school_types(request):
     result = _exec_sql_get_func(request, sql)
     return result
 
+def onp_get_person_by_id(request):
+    if not _check_args(request, "person_id", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT * FROM person WHERE id = %(person_id)s"
+
+    result = _exec_sql_get_func(request, sql, False)
+    return result
+
+def onp_get_competition_by_id(request):
+    if not _check_args(request, "competition_id", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT * FROM competition WHERE id = %(competition_id)s"
+
+    result = _exec_sql_get_func(request, sql, False)
+    return result
+
 def onp_get_roles(request):
     if not _check_args(request, "person_id", "competition", "session_id"):
         return not_enougth_args(request)
@@ -358,5 +382,7 @@ api_functions = {
     "onp_get_competition_pariticipants": onp_get_competition_pariticipants,
     "onp_get_roles": onp_get_roles,
     "onp_add_role": onp_add_role,
+    "onp_get_person_by_id": onp_get_person_by_id,
+    "onp_get_competition_by_id": onp_get_competition_by_id,
     "onp_request_session": onp_request_session
 }
