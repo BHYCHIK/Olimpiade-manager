@@ -77,10 +77,10 @@ class Api(object):
         json_data = dict(data)
         json_data.update({'id': 1, 'cmd': cmd, 'ip_addr': '127.0.0.1', 'session_id': self._session_id})
         logger = logging.getLogger('main')
-        logger.info(u'посылка серверу запроса %s' % (json.dumps(json_data)))
+        logger.info(u'посылка серверу запроса %s' % (json.dumps(json_data, ensure_ascii=False)))
         try:
             sock = socket.create_connection(self.backend_ip, settings.BACKEND_TIMEOUT)
-            sock.send(json.dumps(json_data) + '\r\n')
+            sock.send(json.dumps(json_data, ensure_ascii=False).encode('utf-8') + '\r\n'.encode('utf-8'))
             data = ' '
             response = ''
             while len(data):
@@ -88,7 +88,7 @@ class Api(object):
                 response += data
                 error = False
                 try:
-                    result = json.loads(response)
+                    result = json.loads(response.decode('utf-8'))
                 except ValueError:
                     error = True
                 if not error:
@@ -98,6 +98,7 @@ class Api(object):
             logger.error(u'произошла ошибка при отсылке серверу команды %s' % cmd)
             return None
 
+        response = response.decode('utf-8')
         logger.info(u'получен ответ от сервера: %s' % (response))
         if result['error_code'] != self.ERR_CODE_OK:
             logger.error(u'получен код ошибки %d и описание ошибки [%s] от сервера при запросе команды %s' % (result['error_code'], result['error_text'], cmd))

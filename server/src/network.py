@@ -30,7 +30,7 @@ class ONP(LineReceiver):
         self._json_state = 0 # is opened - closed figure brackets
 
     def operate(self):
-        logger.Logger().debug(u"Сервер обрабатывает сообщение от клиента: %s" % self._buffer);
+        logger.Logger().debug(u"Сервер обрабатывает сообщение от клиента: %s" % self._buffer.decode('utf-8'));
         try:
             request = json.loads(self._buffer)
         except ValueError:
@@ -63,14 +63,14 @@ class ONP(LineReceiver):
         self._buffer = ""
         error = result["error_code"]
         try:
-            reply = json.dumps(result)
+            reply = json.dumps(result, ensure_ascii=False)
         except ValueError:
             log.error(u"Ошибка сериализации ответа сервера: %s" % traceback.print_exc())
             reply = '{"error_code": 0, "error_text": "Ошибка сереализации ответа"}'
             self.sendLine(reply)
             return
 
-        self.sendLine(reply)
+        self.sendLine(reply.encode('utf-8'))
 
         if error == 0:
             log.debug(u"Сервер послал ответ клиенту: [%s]" % reply)
