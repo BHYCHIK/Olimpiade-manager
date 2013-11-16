@@ -200,7 +200,7 @@ def onp_get_competition_pariticipants(request):
     if not _session_checker(request, sess):
         return not_enough_rights(request)
 
-    sql = "SELECT first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where role = 'participant' and competition_id = %(competition_id)s) limit %(from)s, %(count)s"
+    sql = "SELECT id, first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where role = 'participant' and competition_id = %(competition_id)s) limit %(from)s, %(count)s"
 
     result = _exec_sql_get_func(request, sql)
     return result
