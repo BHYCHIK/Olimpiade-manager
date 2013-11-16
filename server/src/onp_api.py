@@ -20,7 +20,7 @@ def _session_checker(request, sess):
         if not sess:
             logger.Logger().debug(u"Нет запрошенной клиентом сессии")
         else:
-            logger.Logger().debug(u"Сессионный(%s) и запрошенный адрес (%s) несовпадают", sess["ip_addr"], request["ip_addr"].host)
+            logger.Logger().debug(u"Сессионный(%s) и запрошенный адрес (%s) несовпадают" % (sess["ip_addr"], request["ip_addr"].host))
         return False
     return True
 
@@ -33,7 +33,6 @@ def _fetch_one_dict(cursor):
     res = {}
 
     for (name, value) in zip(desc, data) :
-        print type(value)
         res[name[0]] = value.decode('utf-8') if isinstance(value, str) else value
 
     return res

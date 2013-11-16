@@ -31,31 +31,32 @@ class Logger:
     def debug(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.debug:
-            self._real_logging("Отладочная информация", message)
+            self._real_logging(u"Отладочная информация", message)
 
     def warn(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.warnings:
-            self._real_logging("Предупреждение", message)
+            self._real_logging(u"Предупреждение", message)
 
     def error(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.errors:
-            self._real_logging("Ошибка", message)
+            self._real_logging(u"Ошибка", message)
 
     def info(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.info:
-            self._real_logging("Информация", message)
+            self._real_logging(u"Информация", message)
 
     def _real_logging(self, level, message):
         conf = config.Config()
         self._mutex.acquire()
         log_file = open(conf.log_file, "at");
-        log_file.write("[%s] at [%s]: %s%s" % (level, time.ctime(), message, os.linesep))
+        msg = u"СЕРВЕР [%s] at [%s]: %s%s" % (level.decode('utf-8'), time.ctime(), message.decode('utf-8'), os.linesep)
+        #log_file.write(u"СЕРВЕР [%s] at [%s]: %s%s" % (level.decode('utf-8'), time.ctime(), message.decode('utf-8'), os.linesep))
         log_file.close()
 
         if not conf.daemonize and conf.stdout_logging:
-            print "[%s] at [%s]: %s" % (level, time.ctime(), message)
+            print u"[%s] at [%s]: %s" % (level, time.ctime(), message)
         self._mutex.release()
 

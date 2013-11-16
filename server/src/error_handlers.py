@@ -1,3 +1,5 @@
+# *-* coding: utf-8 *-*
+
 # This file contains functions that returns jsons replies on incorrect requests
 # Copyright Ivan Remen (i.remen@corp.mail.ru) BMSTU 2013
 
