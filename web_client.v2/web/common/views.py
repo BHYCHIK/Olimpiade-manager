@@ -8,6 +8,7 @@ from common.forms import *
 from common.api import Api, ApiUser
 from django.template import RequestContext
 
+
 @cache_page(settings.caching_settings['static_page_cache_time'])
 def index(request):
     return render_to_response('common/index.html', {}, context_instance=RequestContext(request))
@@ -38,7 +39,6 @@ def register_account(request, api):
 
     c = {'form': form}
     return render_to_response('common/forms/simple.html', c, context_instance=RequestContext(request))
-
 
 @cache_page(settings.caching_settings['static_page_cache_time'])
 def thanks(request):
@@ -83,9 +83,32 @@ def school_types(request, api):
     return render_to_response('common/types.html', c, context_instance=RequestContext(request))
 
 @ApiUser.admin_required
+def get_schools(request, api):
+    schools = api.get_schools()
+    for school in schools:
+        school['city'] = api.get_city(school['city_id'])['name']
+    return render_to_response('common/schools.html', {'schools': schools}, context_instance=RequestContext(request))
+
+@ApiUser.admin_required
+def add_school(request, api):
+    form = AddSchoolForm(api.get_cities(), api.get_school_types(), request.POST or None)
+    if form.is_valid():
+        reg_data = form.cleaned_data
+        if api.add_school(reg_data):
+            return HttpResponseRedirect('/thanks?from=reg_account')
+
+    c = {'form': form}
+    return render_to_response('common/forms/simple.html', c, context_instance=RequestContext(request))
+
+@ApiUser.admin_required
 @simple_form(form_cls=AddCityTypeForm, redirect='/thanks?from=successful_add')
 def add_city_type(request, form_data, api):
     return api.add_city_type(form_data)
+
+@ApiUser.admin_required
+#@simple_form(form_cls=AddCityForm, redirect='/thanks?from=successful_add')
+def add_city(request, form_data, api):
+    return api.add_city(form_data)
 
 @ApiUser.admin_required
 def city_types(request, api):

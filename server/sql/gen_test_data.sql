@@ -39,3 +39,7 @@ INSERT INTO iu7_step.role(person_id, competition_id, role) VALUES
     (1, 2, 'participant'),
     (2, 2, 'participant'),
     (2, 2, 'participant');
+
+INSERT INTO iu7_step.school(title, number, address, city_id, type_id) VALUES
+    ('Гимназия имени Ломоносова', NULL, 'ул. Ленина, д.6', 2, 1),
+    (NULL, 56, 'ул. Комсомольская, д.6', 1, 2);

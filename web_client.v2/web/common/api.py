@@ -117,6 +117,11 @@ class Api(object):
     def get_school_types(self):
         r = self._send_req('onp_get_school_types', {'from': 0, 'count': self.MAX_ELEMENTS})
         return r and r.get('data', None)
+    def get_schools(self):
+        r = self._send_req('onp_get_schools', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
+    def add_school(self, school):
+        return self._send_req('onp_add_school', school)
     def add_city_type(self, city_type):
         return self._send_req('onp_add_city_type', city_type)
     def get_city_types(self):
@@ -138,6 +143,8 @@ class Api(object):
     def get_competition_participants(self, competition_id):
         r = self._send_req('onp_get_competition_pariticipants', {'from': 0, 'count': self.MAX_ELEMENTS, 'competition_id': competition_id})
         return r and r.get('data', None)
-    def get_schools(self):
-        r = self._send_req('onp_get_schools', {'from': 0, 'count': self.MAX_ELEMENTS})
+    def get_city(self, city_id):
+        r = self._send_req('onp_get_city', {'city_id': city_id})
         return r and r.get('data', None)
+    def add_city(self, city):
+        return self._send_req('onp_add_city', city)

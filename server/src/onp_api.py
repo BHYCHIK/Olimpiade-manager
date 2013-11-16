@@ -41,7 +41,7 @@ def _fetch_all_dict(cursor):
         result.append(row)
     return result
 
-def _exec_sql_get_func(request, sql):
+def _exec_sql_get_func(request, sql, return_list=True):
     conf = config.Config()
     mysql_exception = None
     try:
@@ -57,6 +57,8 @@ def _exec_sql_get_func(request, sql):
     try:
         cur.execute(sql, request)
         data = _fetch_all_dict(cur)
+        if data and not return_list:
+            data = data[0]
     except MySQLdb.Error, e:
          error_happend = True
          mysql_exception = e
@@ -131,7 +133,7 @@ def onp_get_schools(request):
     sess = session.get_session(request["session_id"])
     if not _session_checker(request, sess):
         return not_enough_rights(request)
-    sql = "SELECT id, title, number, address, city_id, type_id from competition order by id limit %(from)s, %(count)s"
+    sql = "SELECT id, title, number, address, city_id, type_id from school order by id limit %(from)s, %(count)s"
     result = _exec_sql_get_func(request, sql)
     return result
 
@@ -155,6 +157,18 @@ def onp_get_cities(request):
     sql = "SELECT id, name from city order by name limit %(from)s, %(count)s"
 
     result = _exec_sql_get_func(request, sql)
+    return result
+
+def onp_get_city(request):
+    if not _check_args(request, "city_id", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT id, name from city WHERE id = %(city_id)s"
+
+    result = _exec_sql_get_func(request, sql, return_list=False)
     return result
 
 def onp_get_criteria_titles(request):
@@ -262,9 +276,9 @@ def onp_add_city(request):
     return _add_entry(request, sql, "city_id", True, True)
 
 def onp_add_school(request):
-    if not _check_args(request, "name", "city_type_id", "session_id"):
+    if not _check_args(request, "title", "number", "city_id", "address", "school_type_id", "session_id"):
         return not_enougth_args(request)
-    sql = "INSERT INTO school(title, number, address, city_id, type_id) VALUES(%(title)s, %(number)s, %(address)s, %(city_id)s, %(type_id)s)"
+    sql = "INSERT INTO school(title, number, address, city_id, type_id) VALUES(%(title)s, %(number)s, %(address)s, %(city_id)s, %(school_type_id)s)"
     return _add_entry(request, sql, "school_id", True, True)
 
 def onp_add_city_type(request):
@@ -328,15 +342,16 @@ api_functions = {
     "onp_add_city_type": onp_add_city_type,
     "onp_add_city": onp_add_city,
     "onp_get_cities": onp_get_cities,
+    "onp_get_city": onp_get_city,
     "onp_get_city_types": onp_get_city_types,
     "onp_get_criteria_titles": onp_get_criteria_titles,
     "onp_get_school_types": onp_get_school_types,
-    "onp_start_competition": onp_start_competition,
-    "onp_get_competitions": onp_get_competitions,
     "onp_get_schools": onp_get_schools,
     "onp_add_school": onp_add_school,
+    "onp_start_competition": onp_start_competition,
+    "onp_get_competitions": onp_get_competitions,
+    "onp_get_competition_pariticipants": onp_get_competition_pariticipants,
     "onp_get_roles": onp_get_roles,
     "onp_add_role": onp_add_role,
-    "onp_get_competition_pariticipants": onp_get_competition_pariticipants,
     "onp_request_session": onp_request_session
 }
