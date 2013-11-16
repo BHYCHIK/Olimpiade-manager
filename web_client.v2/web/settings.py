@@ -181,7 +181,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': u'%(asctime)s СЕРВЕР: %(message)s'
+            'format': u'%(asctime)s КЛИЕНТ: %(message)s'
         },
     },
     'filters': {

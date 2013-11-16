@@ -52,8 +52,8 @@ class Logger:
         conf = config.Config()
         self._mutex.acquire()
         log_file = open(conf.log_file, "at");
-        msg = u"СЕРВЕР [%s] at [%s]: %s%s" % (level.decode('utf-8'), time.ctime(), message.decode('utf-8'), os.linesep)
-        #log_file.write(u"СЕРВЕР [%s] at [%s]: %s%s" % (level.decode('utf-8'), time.ctime(), message.decode('utf-8'), os.linesep))
+        msg = u"СЕРВЕР [" + time.ctime() + "] " + message
+        log_file.write(msg)
         log_file.close()
 
         if not conf.daemonize and conf.stdout_logging:
