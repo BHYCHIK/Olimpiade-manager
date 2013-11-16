@@ -248,6 +248,18 @@ def onp_get_competition_pariticipants(request):
     result = _exec_sql_get_func(request, sql)
     return result
 
+def onp_get_competition_curators(request):
+    if not _check_args(request, "competition_id", "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT id, first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where role = 'curator' and competition_id = %(competition_id)s) limit %(from)s, %(count)s"
+
+    result = _exec_sql_get_func(request, sql)
+    return result
+
 def _add_entry(request, sql, result_field, only_auth = True, admin_only_true = False):
     sess = session.get_session(request["session_id"])
     #if only_auth:
@@ -380,6 +392,7 @@ api_functions = {
     "onp_start_competition": onp_start_competition,
     "onp_get_competitions": onp_get_competitions,
     "onp_get_competition_pariticipants": onp_get_competition_pariticipants,
+    "onp_get_competition_curators": onp_get_competition_curators,
     "onp_get_roles": onp_get_roles,
     "onp_add_role": onp_add_role,
     "onp_get_person_by_id": onp_get_person_by_id,
