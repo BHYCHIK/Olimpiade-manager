@@ -1,3 +1,5 @@
+# *-* coding: utf-8 *-*
+
 import memcache
 import string
 import random
@@ -33,7 +35,7 @@ def _check_pass(request):
     except MySQLdb.Error, e:
         error_happend = True
         mysql_exception = e
-        logger.Logger().error("SQL ERROR: " + str(mysql_exception))
+        logger.Logger().error(u"Ошибка СУБД: " + str(mysql_exception))
     finally:
         cur.close()
         conn.close()
@@ -42,7 +44,7 @@ def _check_pass(request):
         raise mysql_exception
 
     if row is None:
-        logger.Logger().warn("Incorrect login/password for %s" % request["login"])
+        logger.Logger().warn(u"Неверный логин или пароль для пользователя %s" % request["login"])
         raise UnknownUserException()
 
     return row
@@ -63,7 +65,7 @@ def make_session(request):
     mc.disconnect_all()
 
     if mc_result == 0:
-        logger.Logger().error("Something bad with memcached (sess_id = %s, login= %s)" % (sess_id, request["login"]) )
+        logger.Logger().error(u"Ошибка системы кэширования (номер сессии = %s, логин= %s)" % (sess_id, request["login"]) )
         raise MemcacheException()
     return session
 
@@ -74,7 +76,7 @@ def get_session(sess_id):
     try:
         res = mc.get(sess_id.encode('utf-8'))
     except memcache.Client.MemcachedKeyError as error:
-        logger.Logger().error("Memcached error: %s" % error)
+        logger.Logger().error(u"Ошибка системы кэширования: %s" % error)
         return None
     if not res:
         return None
@@ -86,4 +88,4 @@ def delete_session(sess_id):
     try:
         mc.delete(sess_id.encode('utf-8'))
     except memcache.Client.MemcachedKeyError as e:
-        logger.Logger().warn("Memcached error: " + str(e))
+        logger.Logger().warn(u"Ошибка системы кэширования: " + str(e))

@@ -1,3 +1,5 @@
+# *-* coding: utf-8 *-*
+
 # This file is a part of olympiade's server.
 # It implements a singleton of logger.
 # Copyright Ivan Remen (i.remen@corp.mail.ru) BMSTU 2013
@@ -29,22 +31,22 @@ class Logger:
     def debug(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.debug:
-            self._real_logging("DEBUG", message)
+            self._real_logging("Отладочная информация", message)
 
     def warn(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.warnings:
-            self._real_logging("WARNING", message)
+            self._real_logging("Предупреждение", message)
 
     def error(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.errors:
-            self._real_logging("ERROR", message)
+            self._real_logging("Ошибка", message)
 
     def info(self, message):
         conf = config.Config()
         if conf.log_level >= config.LogLevel.info:
-            self._real_logging("INFO", message)
+            self._real_logging("Информация", message)
 
     def _real_logging(self, level, message):
         conf = config.Config()
