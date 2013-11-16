@@ -323,6 +323,6 @@ api_functions = {
     "onp_get_schools": onp_get_schools,
     "onp_add_school": onp_add_school,
     "onp_get_roles": onp_get_roles,
-    "onp_add_role": onp_get_role,
+    "onp_add_role": onp_add_role,
     "onp_request_session": onp_request_session
 }
