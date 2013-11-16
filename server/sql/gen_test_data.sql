@@ -22,3 +22,10 @@ INSERT INTO iu7_step.criteria_title(short_name, full_name) VALUES
 INSERT INTO iu7_step.city(name, city_type_id) VALUES
     ('Москва', 1),
     ('Санкт-Петербург', 1);
+
+    INSERT INTO iu7_step.competition(year) VALUES
+    (2010),
+    (2011),
+    (2012),
+    (2013),
+    (2014);
