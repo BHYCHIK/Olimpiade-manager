@@ -26,6 +26,9 @@ class RegisterPersonForm(WebForm):
                             label='Телефон', max_length=20, required=False)
 
 class RegisterAccountForm(WebForm):
+    form_name = 'Регистрация аккаунта'
+    submit_name = 'Зарегистрировать аккаунт'
+
     login = forms.CharField(label='Логин', max_length=45, required=True)
     password = forms.CharField(widget=forms.PasswordInput, label='Пароль', max_length=128, required=True)
     admin_priv = forms.TypedChoiceField(choices=((0, 'Обычный аккаунт'), (1, 'Аккаунт администратора')), label='Тип аккаунта', required=True, coerce=int)

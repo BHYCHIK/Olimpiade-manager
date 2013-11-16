@@ -13,24 +13,38 @@ class ApiUser(object):
             self._session_id = session_id
             api = Api(session_id)
             self._is_authenticated = api.check_session()
+            self._is_admin = True if request.session['admin_priv'] else False
         else:
             self._is_authenticated = False
         print('[%s]: is authenticated = %s' % (request.path, str(self._is_authenticated)))
     def login(self, request, login, password):
-        session_id = Api().account_login({'login': login, 'password': password})
+        session_id, admin_priv = Api().account_login({'login': login, 'password': password})
         if session_id:
             request.session['id'] = session_id
+            request.session['admin_priv'] = admin_priv
         return session_id
 
     def logout(self):
         return Api(self._session_id).logout()
     def is_authenticated(self):
         return self._is_authenticated
+    def is_admin(self):
+        return self.is_authenticated() and self._is_admin
 
     @staticmethod
     def login_required(func):
         def wrapper(request, *args, **kwargs):
             if request.api_user.is_authenticated():
+                api = Api(request.session['id'])
+                return func(request, api, *args, **kwargs)
+            return render_to_response('common/no_access.html',
+                                      context_instance=RequestContext(request))
+        return wrapper
+
+    @staticmethod
+    def admin_required(func):
+        def wrapper(request, *args, **kwargs):
+            if request.api_user.is_admin():
                 api = Api(request.session['id'])
                 return func(request, api, *args, **kwargs)
             return render_to_response('common/no_access.html',
@@ -90,7 +104,7 @@ class Api(object):
         return self._send_req('onp_register_account', reg_data)
     def account_login(self, login_data):
         res = self._send_req('onp_request_session', login_data)
-        return res['session_id'] if res else None
+        return (res['session_id'], res['admin_priv']) if res else None
     def get_all_persons(self):
         res = self._send_req('onp_get_people', {'from': 0, 'count': self.MAX_ELEMENTS})
         return res and res.get('data', None)
@@ -108,8 +122,22 @@ class Api(object):
     def get_city_types(self):
         r = self._send_req('onp_get_city_types', {'from': 0, 'count': self.MAX_ELEMENTS})
         return r and r.get('data', None)
+    def get_cities(self):
+        r = self._send_req('onp_get_cities', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
     def add_criteria_title(self, title):
         return self._send_req('onp_add_criteria_title', title)
     def get_criteria_titles(self):
         r = self._send_req('onp_get_criteria_titles', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
+    def start_competition(self, year):
+        return self._send_req('onp_start_competition', year)
+    def get_competitions(self):
+        r = self._send_req('onp_get_competitions', {'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
+    def get_competition_participants(self, competition_id):
+        r = self._send_req('onp_get_competition_pariticipants', {'from': 0, 'count': self.MAX_ELEMENTS, 'competition_id': competition_id})
+        return r and r.get('data', None)
+    def get_schools(self):
+        r = self._send_req('onp_get_schools', {'from': 0, 'count': self.MAX_ELEMENTS})
         return r and r.get('data', None)
