@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 import time
 import settings
@@ -5,6 +6,7 @@ import socket
 import json
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+import logging
 
 def get_backend_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -25,7 +27,9 @@ class ApiUser(object):
         else:
             self._is_authenticated = False
             self._api = None
-        print('[%s]: is authenticated = %s' % (request.path, str(self._is_authenticated)))
+        logger = logging.getLogger('main')
+        auth_str = u'Авторизованный' if self.is_authenticated() else u'Неавторизованный'
+        logger.info(u'%s пользователь запросил страницу %s' % (auth_str, request.path))
     def get_api(self):
         return self._api
     def login(self, request, login, password):
@@ -72,7 +76,8 @@ class Api(object):
     def _send_req(self, cmd, data):
         json_data = dict(data)
         json_data.update({'id': 1, 'cmd': cmd, 'ip_addr': '127.0.0.1', 'session_id': self._session_id})
-        print('[%s]: frontend is trying to send %s to backend' % (cmd, json.dumps(json_data)))
+        logger = logging.getLogger('main')
+        logger.info(u'посылка серверу запроса %s' % (json.dumps(json_data)))
         try:
             sock = socket.create_connection(self.backend_ip, settings.BACKEND_TIMEOUT)
             sock.send(json.dumps(json_data) + '\r\n')
@@ -90,13 +95,12 @@ class Api(object):
                     break
 
         except socket.error as ex:
-            print('Socket error')
-            print(ex)
+            logger.error(u'произошла ошибка при отсылке серверу команды %s' % cmd)
             return None
 
-        print('[%s]: frontend got from backend: %s' % (cmd, response))
+        logger.info(u'получен ответ от сервера: %s' % (response))
         if result['error_code'] != self.ERR_CODE_OK:
-            print('got error')
+            logger.error(u'получен код ошибки %d и описание ошибки [%s] от сервера при запросе команды %s' % (result['error_code'], result['error_text'], cmd))
             return None
 
         return result
@@ -114,7 +118,7 @@ class Api(object):
         return self._send_req('onp_register_account', reg_data)
     def account_login(self, login_data):
         res = self._send_req('onp_request_session', login_data)
-        return (res['session_id'], res['admin_priv']) if res else None
+        return (res['session_id'], res['admin_priv']) if res else (None, None)
     def get_all_persons(self):
         res = self._send_req('onp_get_people', {'from': 0, 'count': self.MAX_ELEMENTS})
         return res and res.get('data', None)

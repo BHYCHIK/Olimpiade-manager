@@ -26,4 +26,5 @@ urlpatterns = patterns('',
     url(r'^criteria_titles$', 'common.views.criteria_titles'),
     url(r'^competitions$', 'common.views.competitions'),
     url(r'^start_competition$', 'common.views.start_competition'),
+    url(r'^bad_login$', 'common.views.bad_login'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

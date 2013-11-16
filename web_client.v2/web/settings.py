@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from os import path, pardir
 import django.conf.global_settings as DEFAULT_SETTINGS
 
@@ -171,3 +172,57 @@ TEMPLATE_CONTEXT_PROCESSORS = [tcp for tcp in DEFAULT_SETTINGS.TEMPLATE_CONTEXT_
 BROADCAST_PORT = 27016
 BROADCAST_PHRASE = 'Hello, world!'
 BROADCAST_PASS = 'qwerty40'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': u'%(asctime)s СЕРВЕР: %(message)s'
+        },
+    },
+    'filters': {
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/iu7_step/client.log',
+            'formatter': 'simple',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'filters': []
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['null'],
+            'propagate': True,
+            'level': 'INFO',
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'main': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'filters': []
+        }
+    }
+}

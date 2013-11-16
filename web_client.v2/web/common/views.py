@@ -54,8 +54,8 @@ def account_login(request):
         raise ValueError() #TODO: 404
 
     post = request.POST
-    request.api_user.login(request, post['login'], post['password'])
-    return HttpResponseRedirect('/')
+    red_url = '/' if request.api_user.login(request, post['login'], post['password']) else '/bad_login'
+    return HttpResponseRedirect(red_url)
 
 def account_logout(request):
     if request.method != 'POST':
@@ -66,6 +66,8 @@ def account_logout(request):
 
 def about(request):
     return render_to_response('common/about.html', context_instance=RequestContext(request))
+def bad_login(request):
+    return render_to_response('common/bad_login.html', context_instance=RequestContext(request))
 
 @ApiUser.admin_required
 def persons(request, api):
