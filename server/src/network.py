@@ -85,7 +85,7 @@ def broadcast_address():
     cs.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     cs.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-    logger.Logger().info("Sending: %s" % broadcast_data)
+    logger.Logger().info("Sending broadcast")
     cs.sendto("a", ('255.255.255.255', conf.broadcast_listening_port))
     cs.close()
 
