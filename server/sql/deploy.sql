@@ -45,7 +45,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`city` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`city` (
-  `id` INT NOT NULL ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(45) NOT NULL ,
   `city_type_id` INT UNSIGNED ZEROFILL NOT NULL ,
   PRIMARY KEY (`id`) ,
@@ -64,7 +64,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`school_type` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`school_type` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `short_title` VARCHAR(45) NOT NULL ,
   `full_title` VARCHAR(2048) NOT NULL ,
   PRIMARY KEY (`id`) )
@@ -118,7 +118,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`criteria_title` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`criteria_title` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `short_name` VARCHAR(45) NOT NULL ,
   `full_name` TEXT NOT NULL ,
   PRIMARY KEY (`id`) )
@@ -131,7 +131,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`criteria` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`criteria` (
-  `id` INT UNSIGNED NOT NULL ,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
   `criteria_title_id` INT NULL ,
   `competition_id` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`id`) ,
@@ -289,7 +289,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`criteria_score` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`criteria_score` (
-  `id` INT UNSIGNED NOT NULL ,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
   `range_id` INT UNSIGNED NOT NULL ,
   `score_id` INT UNSIGNED NOT NULL ,
   `value` TINYINT UNSIGNED NOT NULL ,
@@ -315,7 +315,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `iu7_step`.`account` ;
 
 CREATE  TABLE IF NOT EXISTS `iu7_step`.`account` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `login` VARCHAR(45) NOT NULL ,
   `password_hash` VARCHAR(128) NOT NULL ,
   `person_id` INT UNSIGNED NOT NULL ,
