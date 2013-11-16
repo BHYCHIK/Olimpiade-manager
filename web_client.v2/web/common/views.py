@@ -42,7 +42,6 @@ def register_account(request, api):
 
 @cache_page(settings.caching_settings['static_page_cache_time'])
 def thanks(request):
-    print(request.session['id'])
     ref = request.GET['from']
     ref2msg = {'reg_person': 'Пользователь успешно зарегистрирован.',
                'reg_account': 'Аккаунт успешно зарегистрирован.',
