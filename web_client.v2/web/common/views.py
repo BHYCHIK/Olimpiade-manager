@@ -37,7 +37,7 @@ def register_account(request, api):
             return HttpResponseRedirect('/thanks?from=reg_account')
 
     c = {'form': form}
-    return render_to_response('common/forms/register_account.html', c, context_instance=RequestContext(request))
+    return render_to_response('common/forms/simple.html', c, context_instance=RequestContext(request))
 
 
 @cache_page(settings.caching_settings['static_page_cache_time'])
@@ -111,10 +111,10 @@ def cities(request, api):
 def competitions(request, api):
     competitions = api.get_competitions()
     data = []
-    for competitions in competitions:
+    for competition in competitions:
         participants = api.get_competition_participants(competition['id'])
-        data.append({'participants': participants, 'participants_count': len(participants)}
-    return render_to_response('common/competitions.html', data, context_instance=RequestContext(request))
+        data.append({'year': competition['year'], 'id': competition['id'], 'participants': participants, 'participants_count': len(participants)})
+    return render_to_response('common/competitions.html', {'competitions': data}, context_instance=RequestContext(request))
 
 @ApiUser.admin_required
 @simple_form(form_cls=AddCriteriaTitleForm, redirect='/thanks?from=successful_add')
