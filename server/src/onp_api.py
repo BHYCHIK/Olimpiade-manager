@@ -94,7 +94,7 @@ def onp_check_session(request):
     sess = session.get_session(request["session_id"])
     if not _session_checker(request, sess):
         return not_enough_rights(request)
-    return {"error_code": 0, "id": request["id"]}
+    return {"error_code": 0, "id": request["id"], "admin_priv": sess["admin_priv"]}
 
 def onp_get_people(request):
     if not _check_args(request, "from", "count", "session_id"):
@@ -180,6 +180,18 @@ def onp_get_school_types(request):
     result = _exec_sql_get_func(request, sql)
     return result
 
+def onp_get_roles(request):
+    if not _check_args(request, "person_id", "competition", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT id, role FROM role WHERE person_id = %(person_id) and competition_id = %(year_id)s"
+
+    result = _exec_sql_get_func(request, sql)
+    return result
+
 def _add_entry(request, sql, result_field, only_auth = True, admin_only_true = False):
     sess = session.get_session(request["session_id"])
     #if only_auth:
@@ -220,6 +232,13 @@ def onp_add_criteria_title(request):
     if not _check_args(request, "short_name", "full_name", "session_id"):
         return not_enougth_args(request)
     sql = "INSERT INTO criteria_title(short_name, full_name) VALUES(%(short_name)s, %(full_name)s)"
+    return _add_entry(request, sql, "criteria_title_id", True, True)
+    return result
+
+def onp_add_role(request):
+    if not _check_args(request, "person_id", "competition_id", "role"):
+        return not_enougth_args(request)
+    sql = "INSERT INTO role(person_id, competition_id, role) VALUES(%(person_id)s, %(competition_id)s, %(role)s)"
     return _add_entry(request, sql, "criteria_title_id", True, True)
     return result
 
@@ -303,5 +322,7 @@ api_functions = {
     "onp_get_competitions": onp_get_competitions,
     "onp_get_schools": onp_get_schools,
     "onp_add_school": onp_add_school,
+    "onp_get_roles": onp_get_roles,
+    "onp_add_role": onp_get_role,
     "onp_request_session": onp_request_session
 }
