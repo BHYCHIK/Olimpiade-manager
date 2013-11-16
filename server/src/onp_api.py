@@ -201,13 +201,13 @@ def onp_get_school_types(request):
     return result
 
 def onp_get_roles(request):
-    if not _check_args(request, "person_id", "competition", "session_id"):
+    if not _check_args(request, "person_id", "competition_id", "session_id"):
         return not_enougth_args(request)
     sess = session.get_session(request["session_id"])
     if not _session_checker(request, sess):
         return not_enough_rights(request)
 
-    sql = "SELECT id, role FROM role WHERE person_id = %(person_id) and competition_id = %(year_id)s"
+    sql = "SELECT id, role FROM role WHERE person_id = %(person_id)s and competition_id = %(competition_id)s"
 
     result = _exec_sql_get_func(request, sql)
     return result
@@ -265,14 +265,12 @@ def onp_add_criteria_title(request):
         return not_enougth_args(request)
     sql = "INSERT INTO criteria_title(short_name, full_name) VALUES(%(short_name)s, %(full_name)s)"
     return _add_entry(request, sql, "criteria_title_id", True, True)
-    return result
 
 def onp_add_role(request):
     if not _check_args(request, "person_id", "competition_id", "role"):
         return not_enougth_args(request)
     sql = "INSERT INTO role(person_id, competition_id, role) VALUES(%(person_id)s, %(competition_id)s, %(role)s)"
     return _add_entry(request, sql, "criteria_title_id", True, True)
-    return result
 
 def onp_add_city(request):
     if not _check_args(request, "name", "city_type_id", "session_id"):

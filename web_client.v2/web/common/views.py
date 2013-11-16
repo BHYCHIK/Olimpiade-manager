@@ -149,3 +149,14 @@ def competitions(request, api):
 @simple_form(form_cls=StartCompetitionForm, redirect='/thanks?from=successful_add')
 def start_competition(request, form_data, api):
     return api.start_competition(form_data)
+
+@ApiUser.admin_required
+def add_role(request, api):
+    form = AddRoleForm(api.get_all_persons(), api.get_competitions(), request.POST or None)
+    if form.is_valid():
+        reg_data = form.cleaned_data
+        if api.add_role(reg_data):
+            return HttpResponseRedirect('/thanks?from=successful_add')
+
+    c = {'form': form}
+    return render_to_response('common/forms/simple.html', c, context_instance=RequestContext(request))

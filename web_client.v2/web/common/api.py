@@ -163,3 +163,5 @@ class Api(object):
         return r and r.get('data', None)
     def add_city(self, city):
         return self._send_req('onp_add_city', city)
+    def add_role(self, role):
+        return self._send_req('onp_add_role', role)
