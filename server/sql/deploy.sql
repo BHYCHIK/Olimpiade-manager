@@ -349,7 +349,22 @@ FROM score JOIN criteria_score ON score.id = criteria_score.score_id
 
 GROUP BY score.work_id;
 
-CREATE USER `iu7_dbuser`@`localhost` IDENTIFIED BY 'krakazabra2k';
+DROP PROCEDURE if EXISTS createUser;
+delimiter $$
+CREATE PROCEDURE createUser(username varchar(50), pw varchar(50))
+BEGIN
+IF (SELECT EXISTS(SELECT 1 FROM `mysql`.`user` WHERE `user` = username)) = 0 THEN
+    BEGIN
+    SET @sql = CONCAT('CREATE USER ', username, '@\'localhost\' IDENTIFIED BY \'', pw, '\'');
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+    END;
+END IF;
+END $$
+delimiter ;
+
+CALL createUser('iu7_dbuser', 'krakazabra2k');
 
 grant DELETE on TABLE `iu7_step`.`role` to `iu7_dbuser`@`localhost`;
 grant INSERT on TABLE `iu7_step`.`role` to `iu7_dbuser`@`localhost`;
