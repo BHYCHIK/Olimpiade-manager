@@ -221,6 +221,12 @@ def onp_add_school_type(request):
     sql = "INSERT INTO school_type(short_title, full_title) VALUES(%(short_title)s, %(full_title)s)"
     return _add_entry(request, sql, "school_type_id", True, True)
 
+def onp_start_competition(request):
+    if not _check_args(request, "year"):
+        return not_enougth_args(request)
+    sql = "INSERT INTO competition(year) VALUES(%(year)s)"
+    return _add_entry(request, sql, "competition_id", True, True)
+
 def onp_register_person(request):
     if not _check_args(request, "first_name", "second_name", "surname", "gender", "email", "date_of_birth", "description", "address", "phone", "session_id"):
         return not_enougth_args(request)
