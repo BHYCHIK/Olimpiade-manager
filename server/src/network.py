@@ -66,7 +66,7 @@ class ONP(LineReceiver):
             reply = json.dumps(result)
         except ValueError:
             log.error(u"Ошибка сериализации ответа сервера: %s" % traceback.print_exc())
-            reply = '{"error_code": 0, "error_text": "serializing to JSON error"}'
+            reply = '{"error_code": 0, "error_text": "Ошибка сереализации ответа"}'
             self.sendLine(reply)
             return
 
