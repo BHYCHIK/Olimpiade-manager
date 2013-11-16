@@ -1,3 +1,5 @@
+# *-* coding: utf-8 *-*
+
 # This file contains api functions
 # Copyright Ivan Remen (i.remen@corp.mail.ru) BMSTU 2013
 import MySQLdb
@@ -9,16 +11,16 @@ import session
 def _check_args(request, *needed_args):
     for arg in needed_args:
         if request.get(arg, None) is None:
-            logger.Logger().debug("No argument %s" % arg)
+            logger.Logger().debug(u"Нет агрумента %s" % arg)
             return False
     return True
 
 def _session_checker(request, sess):
     if not sess or sess["ip_addr"] != request["ip_addr"].host:
         if not sess:
-            logger.Logger().debug("No session in _session_checker")
+            logger.Logger().debug(u"Нет запрошенной клиентом сессии")
         else:
-            logger.Logger().debug("session(%s) and request ip_addrs(%s) missmatch", sess["ip_addr"], request["ip_addr"].host)
+            logger.Logger().debug(u"Сессионный(%s) и запрошенный адрес (%s) несовпадают", sess["ip_addr"], request["ip_addr"].host)
         return False
     return True
 
@@ -52,7 +54,7 @@ def _exec_sql_get_func(request, sql, return_list=True):
         conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
     except Exception, e:
         mysql_exception = e
-        logger.Logger().error("SQL ERROR: " + str(mysql_exception))
+        logger.Logger().error(u"Ошибка СУБД: " + str(mysql_exception))
         return sql_error(request, str(mysql_exception))
     cur = conn.cursor()
 
@@ -70,7 +72,7 @@ def _exec_sql_get_func(request, sql, return_list=True):
         cur.close()
         conn.close()
     if error_happend:
-        logger.Logger().error("SQL ERROR: " + str(mysql_exception))
+        logger.Logger().error(u"Ошибка СУБД: " + str(mysql_exception))
         return sql_error(request, str(mysql_exception))
 
     result = {}
