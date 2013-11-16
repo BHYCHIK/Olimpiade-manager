@@ -26,7 +26,6 @@ class ONP(LineReceiver):
         self.clientAddress = address
         self._buffer = ""
         self._json_state = 0 # is opened - closed figure brackets
-        self._iproto_maker = Iproto()
 
     def operate(self):
         logger.Logger().debug("Processing message: %s" % self._buffer);
