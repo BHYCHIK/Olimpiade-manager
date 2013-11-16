@@ -57,6 +57,6 @@ class Logger:
         log_file.close()
 
         if not conf.daemonize and conf.stdout_logging:
-            print u"[%s] at [%s]: %s" % (level, time.ctime(), message)
+            print(msg)
         self._mutex.release()
 
