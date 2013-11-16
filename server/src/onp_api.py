@@ -15,6 +15,10 @@ def _check_args(request, *needed_args):
 
 def _session_checker(request, sess):
     if not sess or sess["ip_addr"] != request["ip_addr"].host:
+        if not sess:
+            logger.Logger().debug("No session in _session_checker")
+        else:
+            logger.Logger().debug("session(%s) and request ip_addrs(%s) missmatch", sess["ip_addr"], request["ip_addr"].host)
         return False
     return True
 
