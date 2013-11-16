@@ -24,30 +24,31 @@ def get_backend_ip():
     decrypted_data = xor_crypt_string(data, settings.BROADCAST_PASS, False, True)
     print('Got from broadcasting %s, after decryption - %s' % (data, decrypted_data))
     s.close()
-    return settings.BACKEND_HOST
+    return (addr[0], settings.BACKEND_PORT)
 
 class ApiUser(object):
     def __init__(self, request):
         if 'id' in request.session:
             session_id = request.session['id']
             self._session_id = session_id
-            api = Api(session_id, get_backend_ip())
-            self._is_authenticated = api.check_session()
+            self._api = Api(session_id, get_backend_ip())
+            self._is_authenticated = self.get_api().check_session()
             self._is_admin = True if request.session['admin_priv'] else False
         else:
             self._is_authenticated = False
+            self._api = None
         print('[%s]: is authenticated = %s' % (request.path, str(self._is_authenticated)))
     def get_api(self):
         return self._api
     def login(self, request, login, password):
-        session_id, admin_priv = Api().account_login({'login': login, 'password': password})
+        session_id, admin_priv = self.get_api().account_login({'login': login, 'password': password})
         if session_id:
             request.session['id'] = session_id
             request.session['admin_priv'] = admin_priv
         return session_id
 
     def logout(self):
-        return Api(self._session_id).logout()
+        return self.get_api().logout()
     def is_authenticated(self):
         return self._is_authenticated
     def is_admin(self):
