@@ -114,6 +114,16 @@ def onp_get_people(request):
             person["date_of_birth"] = "00000000"
     return result
 
+def onp_get_competitions(request):
+    if not _check_args(request, "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+    sql = "SELECT id, year from competition order by id limit %(from)s, %(count)s"
+    result = _exec_sql_get_func(request, sql)
+    return result
+
 def onp_get_city_types(request):
     if not _check_args(request, "from", "count", "session_id"):
         return not_enougth_args(request)
@@ -273,5 +283,7 @@ api_functions = {
     "onp_get_city_types": onp_get_city_types,
     "onp_get_criteria_titles": onp_get_criteria_titles,
     "onp_get_school_types": onp_get_school_types,
+    "onp_start_competition": onp_start_competition,
+    "onp_get_competitions": onp_get_competitions,
     "onp_request_session": onp_request_session
 }
