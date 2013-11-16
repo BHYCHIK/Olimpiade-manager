@@ -50,7 +50,7 @@ def _exec_sql_get_func(request, sql, return_list=True):
     conf = config.Config()
     mysql_exception = None
     try:
-        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+        conn = MySQLdb.connect(host=conf.db_host, charset="utf8", use_unicode=True, user=conf.db_user, passwd=conf.db_pass, db=conf.db_name)
     except Exception, e:
         mysql_exception = e
         logger.Logger().error(u"Ошибка СУБД: " + str(mysql_exception))
@@ -234,7 +234,7 @@ def _add_entry(request, sql, result_field, only_auth = True, admin_only_true = F
     conf = config.Config()
     mysql_error = None
     try:
-        conn = MySQLdb.connect(host=conf.db_host, user = conf.db_user, passwd = conf.db_pass, db = conf.db_name)
+        conn = MySQLdb.connect(host=conf.db_host, charset="utf8", use_unicode=True, user=conf.db_user, passwd=conf.db_pass, db=conf.db_name)
     except MySQLdb.Error, e:
         return sql_error(request, str(mysql_error))
     cur = conn.cursor()
