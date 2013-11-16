@@ -23,3 +23,9 @@ class AddCriteriaTitleForm(WebForm):
 
     short_name = forms.CharField(label='Краткое название', max_length=45)
     full_name = forms.CharField(label='Полное название')
+
+class StartCompetitionForm(WebForm):
+    form_name = "Начало соревнования"
+    submit_name = "Начать"
+
+    year = forms.IntegerField(label='Год соревнования')

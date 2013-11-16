@@ -117,6 +117,6 @@ def competitions(request, api):
     return render_to_response('common/competitions.html', {'competitions': data}, context_instance=RequestContext(request))
 
 @ApiUser.admin_required
-@simple_form(form_cls=AddCriteriaTitleForm, redirect='/thanks?from=successful_add')
+@simple_form(form_cls=StartCompetitionForm, redirect='/thanks?from=successful_add')
 def start_competition(request, form_data, api):
-    return api.add_competition(form_data)
+    return api.start_competition(form_data)
