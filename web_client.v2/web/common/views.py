@@ -160,3 +160,23 @@ def add_role(request, api):
 
     c = {'form': form}
     return render_to_response('common/forms/simple.html', c, context_instance=RequestContext(request))
+
+@ApiUser.admin_required
+def add_work(request, api):
+    competitions = api.get_competitions()
+    competitions_data = []
+    for competition in competitions:
+        participants = api.get_competition_participants(competition['id'])
+        curators = api.get_competition_curators(competition['id'])
+        competitions_data.append({'year': competition['year'], 'id': competition['id'], 'participants': participants, 'participants_count': len(participants), 'curators': curators, 'curators_count': len(curators)})
+
+    schools = api.get_schools()
+
+    form = AddWorkForm(competitions_data, schools, api.getrequest.POST or None)
+    if form.is_valid():
+        reg_data = form.cleaned_data
+        if api.add_work(reg_data):
+            return HttpResponseRedirect('/thanks?from=successful_add')
+
+    c = {'form': form}
+    return render_to_response('common/forms/simple.html', c, context_instance=RequestContext(request))

@@ -20,7 +20,7 @@ def _session_checker(request, sess):
         if not sess:
             logger.Logger().debug(u"Нет запрошенной клиентом сессии")
         else:
-            logger.Logger().debug(u"Сессионный(%s) и запрошенный адрес (%s) несовпадают" % (sess["ip_addr"], request["ip_addr"].host))
+            logger.Logger().debug(u"Сессионный(%s) и запрошенный адрес (%s) не совпадают" % (sess["ip_addr"], request["ip_addr"].host))
         return False
     return True
 

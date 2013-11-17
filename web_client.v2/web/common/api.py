@@ -158,6 +158,9 @@ class Api(object):
     def get_competition_participants(self, competition_id):
         r = self._send_req('onp_get_competition_pariticipants', {'from': 0, 'count': self.MAX_ELEMENTS, 'competition_id': competition_id})
         return r and r.get('data', None)
+    def get_competition_curators(self, competition_id):
+        r = self._send_req('onp_get_competition_curators', {'from': 0, 'count': self.MAX_ELEMENTS, 'competition_id': competition_id})
+        return r and r.get('data', None)
     def get_city(self, city_id):
         r = self._send_req('onp_get_city', {'city_id': city_id})
         return r and r.get('data', None)
@@ -165,3 +168,5 @@ class Api(object):
         return self._send_req('onp_add_city', city)
     def add_role(self, role):
         return self._send_req('onp_add_role', role)
+    def add_work(self, work):
+        return self._send_req('onp_add_work', work)
