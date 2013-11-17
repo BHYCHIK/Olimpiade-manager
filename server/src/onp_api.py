@@ -102,7 +102,7 @@ def onp_check_session(request):
     sess = session.get_session(request["session_id"])
     if not _session_checker(request, sess):
         return not_enough_rights(request)
-    return {"error_code": 0, "id": request["id"], "admin_priv": sess["admin_priv"]}
+    return {"error_code": 0, "id": request["id"], "admin_priv": sess["admin_priv"], "roles": sess["roles"]}
 
 def onp_get_people(request):
     if not _check_args(request, "from", "count", "session_id"):
@@ -224,6 +224,18 @@ def onp_get_competition_by_id(request):
     result = _exec_sql_get_func(request, sql, False)
     return result
 
+def onp_get_role_by_id(request):
+    if not _check_args(request, "role_id", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT * FROM role WHERE id = %(role_id)s"
+
+    result = _exec_sql_get_func(request, sql, False)
+    return result
+
 def onp_get_roles(request):
     if not _check_args(request, "person_id", "competition_id", "session_id"):
         return not_enougth_args(request)
@@ -244,6 +256,54 @@ def onp_get_competition_pariticipants(request):
         return not_enough_rights(request)
 
     sql = "SELECT id, first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where role = 'participant' and competition_id = %(competition_id)s) limit %(from)s, %(count)s"
+
+    result = _exec_sql_get_func(request, sql)
+    return result
+
+def onp_get_mean_score(request):
+    if not _check_args(request, "criteria_title_id", "participant_id", "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT avg(value) as mean_scriteria_score FROM criteria_score WHERE criteria_title_id = %(criteria_title_id)s and score_id in (select id from score where work_id in (select id from work where participant_id = %(participant_id)s))"
+
+    result = _exec_sql_get_func(request, sql)
+    return result
+
+def onp_get_competition_experts(request):
+    if not _check_args(request, "competition_id", "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT id, first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where role = 'expert' and competition_id = %(competition_id)s) limit %(from)s, %(count)s"
+
+    result = _exec_sql_get_func(request, sql)
+    return result
+
+def onp_get_competition_curators(request):
+    if not _check_args(request, "competition_id", "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT id, first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where role = 'curator' and competition_id = %(competition_id)s) limit %(from)s, %(count)s"
+
+    result = _exec_sql_get_func(request, sql)
+    return result
+
+def onp_get_competition_works(request):
+    if not _check_args(request, "competition_id", "from", "count", "session_id"):
+        return not_enougth_args(request)
+    sess = session.get_session(request["session_id"])
+    if not _session_checker(request, sess):
+        return not_enough_rights(request)
+
+    sql = "SELECT * from work where participant_id in (select id from role where comptetition_id = %(competition_id)s)"
 
     result = _exec_sql_get_func(request, sql)
     return result
@@ -290,6 +350,12 @@ def onp_add_criteria_title(request):
     sql = "INSERT INTO criteria_title(short_name, full_name) VALUES(%(short_name)s, %(full_name)s)"
     return _add_entry(request, sql, "criteria_title_id", True, True)
 
+def onp_add_work(request):
+    if not _check_args(request, "participant_id", "school_id", "curator_id", "title", "registration_date"):
+        return not_enougth_args(request)
+    sql = "INSERT INTO work(participant_id, school_id, curator_id, title, registration_date, state) VALUES(%(participant_id)s, %(school_id)s, %(curator_id)s, %(title)s, %(registration_date), 'none')"
+    return _add_entry(request, sql, "work_id", True, True)
+
 def onp_add_role(request):
     if not _check_args(request, "person_id", "competition_id", "role"):
         return not_enougth_args(request)
@@ -312,6 +378,18 @@ def onp_add_city_type(request):
     if not _check_args(request, "short_title", "full_title", "session_id"):
         return not_enougth_args(request)
     sql = "INSERT INTO city_type(short_title, full_title) VALUES(%(short_title)s, %(full_title)s)"
+    return _add_entry(request, sql, "city_type_id", True, True)
+
+def onp_add_score(request):
+    if not _check_args(request, "work_id", "expert_id", "date", "session_id"):
+        return not_enougth_args(request)
+    sql = "INSERT INTO score(work_id, expert_id, date, state) VALUES(%(work_id)s, %(expert_id)s, %(date)s, 'complete')"
+    return _add_entry(request, sql, "score_id", True, True)
+
+def onp_add_criteria_score(request):
+    if not _check_args(request, "score_id", "criteria_title_id", "value", "session_id"):
+        return not_enougth_args(request)
+    sql = "INSERT INTO criteria_score(score_id, criteria_title_id, value) VALUES(%(score_id)s, %(criteria_title_id)s, %(value)s)"
     return _add_entry(request, sql, "city_type_id", True, True)
 
 def onp_add_school_type(request):
@@ -375,12 +453,20 @@ api_functions = {
     "onp_get_school_types": onp_get_school_types,
     "onp_get_schools": onp_get_schools,
     "onp_add_school": onp_add_school,
+    "onp_add_score": onp_add_score,
+    "onp_add_criteria_score": onp_add_criteria_score,
     "onp_start_competition": onp_start_competition,
     "onp_get_competitions": onp_get_competitions,
     "onp_get_competition_pariticipants": onp_get_competition_pariticipants,
+    "onp_get_competition_curators": onp_get_competition_curators,
+    "onp_get_competition_experts": onp_get_competition_experts,
     "onp_get_roles": onp_get_roles,
     "onp_add_role": onp_add_role,
+    "onp_add_work": onp_add_work,
     "onp_get_person_by_id": onp_get_person_by_id,
     "onp_get_competition_by_id": onp_get_competition_by_id,
+    "onp_get_role_by_id": onp_get_role_by_id,
+    "onp_get_competition_works": onp_get_competition_works,
+    "onp_get_mean_score": onp_get_mean_score,
     "onp_request_session": onp_request_session
 }
