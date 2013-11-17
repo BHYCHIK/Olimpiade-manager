@@ -172,7 +172,7 @@ def add_work(request, api):
 
     schools = api.get_schools()
 
-    form = AddWorkForm(competitions_data, schools, api.getrequest.POST or None)
+    form = AddWorkForm(competitions_data, schools, request.POST or None)
     if form.is_valid():
         reg_data = form.cleaned_data
         if api.add_work(reg_data):
