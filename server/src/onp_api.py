@@ -11,7 +11,7 @@ import session
 def _check_args(request, *needed_args):
     for arg in needed_args:
         if request.get(arg, None) is None:
-            logger.Logger().debug(u"Нет агрумента %s" % arg)
+            logger.Logger().debug(u"Нет аргумента %s" % arg)
             return False
     return True
 
@@ -248,7 +248,7 @@ def onp_get_roles(request):
     result = _exec_sql_get_func(request, sql)
     return result
 
-def onp_get_competition_pariticipants(request):
+def onp_get_competition_participants(request):
     if not _check_args(request, "competition_id", "from", "count", "session_id"):
         return not_enougth_args(request)
     sess = session.get_session(request["session_id"])
@@ -351,9 +351,9 @@ def onp_add_criteria_title(request):
     return _add_entry(request, sql, "criteria_title_id", True, True)
 
 def onp_add_work(request):
-    if not _check_args(request, "participant_id", "school_id", "curator_id", "title", "registration_date"):
+    if not _check_args(request, "participant_id", "school_id", "curator_id", "title", "registration_date", "state"):
         return not_enougth_args(request)
-    sql = "INSERT INTO work(participant_id, school_id, curator_id, title, registration_date, state) VALUES(%(participant_id)s, %(school_id)s, %(curator_id)s, %(title)s, %(registration_date), 'none')"
+    sql = "INSERT INTO work(participant_id, school_id, curator_id, title, registration_date, state) VALUES(%(participant_id)s, %(school_id)s, %(curator_id)s, %(title)s, %(registration_date)s, %(state)s)"
     return _add_entry(request, sql, "work_id", True, True)
 
 def onp_add_role(request):
@@ -457,7 +457,7 @@ api_functions = {
     "onp_add_criteria_score": onp_add_criteria_score,
     "onp_start_competition": onp_start_competition,
     "onp_get_competitions": onp_get_competitions,
-    "onp_get_competition_pariticipants": onp_get_competition_pariticipants,
+    "onp_get_competition_participants": onp_get_competition_participants,
     "onp_get_competition_curators": onp_get_competition_curators,
     "onp_get_competition_experts": onp_get_competition_experts,
     "onp_get_roles": onp_get_roles,

@@ -11,8 +11,14 @@ import logging
 def get_backend_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(('0.0.0.0', settings.BROADCAST_PORT))
-    data, addr = s.recvfrom(1)
+    s.settimeout(settings.BROADCAST_TIMEOUT)
+    try:
+        s.bind(('0.0.0.0', settings.BROADCAST_PORT))
+        data, addr = s.recvfrom(1)
+    except socket.error as ex:
+        logger = logging.getLogger('main')
+        logger.error(u'Произошла ошибка при ожидании широковещательного пакета от сервера')
+        addr = (None, None)
     s.close()
     return (addr[0], settings.BACKEND_PORT)
 
@@ -156,7 +162,7 @@ class Api(object):
         r = self._send_req('onp_get_competitions', {'from': 0, 'count': self.MAX_ELEMENTS})
         return r and r.get('data', None)
     def get_competition_participants(self, competition_id):
-        r = self._send_req('onp_get_competition_pariticipants', {'from': 0, 'count': self.MAX_ELEMENTS, 'competition_id': competition_id})
+        r = self._send_req('onp_get_competition_participants', {'from': 0, 'count': self.MAX_ELEMENTS, 'competition_id': competition_id})
         return r and r.get('data', None)
     def get_competition_curators(self, competition_id):
         r = self._send_req('onp_get_competition_curators', {'from': 0, 'count': self.MAX_ELEMENTS, 'competition_id': competition_id})

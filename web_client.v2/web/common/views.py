@@ -7,6 +7,7 @@ import settings
 from common.forms import *
 from common.api import Api, ApiUser
 from django.template import RequestContext
+import datetime
 
 @cache_page(settings.caching_settings['static_page_cache_time'])
 def index(request):
@@ -164,17 +165,29 @@ def add_role(request, api):
 @ApiUser.admin_required
 def add_work(request, api):
     competitions = api.get_competitions()
-    competitions_data = []
+    participants = []
+    curators = []
     for competition in competitions:
-        participants = api.get_competition_participants(competition['id'])
-        curators = api.get_competition_curators(competition['id'])
-        competitions_data.append({'year': competition['year'], 'id': competition['id'], 'participants': participants, 'participants_count': len(participants), 'curators': curators, 'curators_count': len(curators)})
+        year = competition['year']
+        comp_participants = []
+        for p in api.get_competition_participants(competition['id']):
+            participant = dict(p)
+            participant.update({'year': year})
+            comp_participants.append(participant)
+        participants.extend(comp_participants)
+        
+        comp_curators = []
+        for c in api.get_competition_curators(competition['id']):
+            curator = dict(c)
+            curator.update({'year': year})
+            comp_curators.append(curator)
+        curators.extend(comp_participants)
 
     schools = api.get_schools()
-
-    form = AddWorkForm(competitions_data, schools, request.POST or None)
+    form = AddWorkForm(participants, curators, schools, request.POST or None)
     if form.is_valid():
         reg_data = form.cleaned_data
+        reg_data['registration_date'] = '2013-01-01'#datetime.date.today()
         if api.add_work(reg_data):
             return HttpResponseRedirect('/thanks?from=successful_add')
 
