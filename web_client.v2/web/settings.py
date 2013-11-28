@@ -30,7 +30,7 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['olimp-manager.com']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -161,7 +161,7 @@ caching_settings = {
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 BACKEND_PORT = 5000
-BACKEND_HOST = ('localhost', BACKEND_PORT)
+#BACKEND_HOST = ('localhost', BACKEND_PORT)
 BACKEND_TIMEOUT = 5.5
 
 TEMPLATE_CONTEXT_PROCESSORS = [tcp for tcp in DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS if tcp != 'django.contrib.auth.context_processors.auth'] + [
@@ -170,8 +170,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [tcp for tcp in DEFAULT_SETTINGS.TEMPLATE_CONTEXT_
 ]
 
 BROADCAST_PORT = 27016
-BROADCAST_PHRASE = 'Hello, world!'
-BROADCAST_PASS = 'qwerty40'
 BROADCAST_TIMEOUT = 1
 
 LOGGING = {

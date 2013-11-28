@@ -210,6 +210,9 @@ def onp_get_person_by_id(request):
     sql = "SELECT * FROM person WHERE id = %(person_id)s"
 
     result = _exec_sql_get_func(request, sql, False)
+    print(result)
+    if 'date_of_birth' in result['data'] and result['data']['date_of_birth']:
+        result['data']['date_of_birth'] = result['data']['date_of_birth'].strftime('%Y%m%d')
     return result
 
 def onp_get_competition_by_id(request):
@@ -255,7 +258,7 @@ def onp_get_competition_participants(request):
     if not _session_checker(request, sess):
         return not_enough_rights(request)
 
-    sql = "SELECT id, first_name, second_name, surname FROM person WHERE id IN (SELECT person_id from role where role = 'participant' and competition_id = %(competition_id)s) limit %(from)s, %(count)s"
+    sql = "SELECT role.id, person.first_name, person.second_name, person.surname FROM person JOIN role ON (role.person_id = person.id) WHERE role.role = 'participant' and role.competition_id = %(competition_id)s"
 
     result = _exec_sql_get_func(request, sql)
     return result
@@ -303,9 +306,12 @@ def onp_get_competition_works(request):
     if not _session_checker(request, sess):
         return not_enough_rights(request)
 
-    sql = "SELECT * from work where participant_id in (select id from role where comptetition_id = %(competition_id)s)"
+    sql = "SELECT id, title, participant_id, registration_date from work where participant_id in (select id from role where competition_id = %(competition_id)s)"
 
     result = _exec_sql_get_func(request, sql)
+    for w in result['data']:
+        if 'registration_date' in w and w['registration_date']:
+            w['registration_date'] = w['registration_date'].strftime('%Y%m%d')
     return result
 
 def _add_entry(request, sql, result_field, only_auth = True, admin_only_true = False):
@@ -468,5 +474,5 @@ api_functions = {
     "onp_get_role_by_id": onp_get_role_by_id,
     "onp_get_competition_works": onp_get_competition_works,
     "onp_get_mean_score": onp_get_mean_score,
-    "onp_request_session": onp_request_session
+    "onp_request_session": onp_request_session,
 }

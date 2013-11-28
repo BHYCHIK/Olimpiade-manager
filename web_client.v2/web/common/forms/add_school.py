@@ -17,3 +17,4 @@ class AddSchoolForm(WebForm):
         self.fields['city_id'] = forms.TypedChoiceField(choices=city_choices, label='Город', required=True, coerce=int)
         school_choices = ((c['id'], c['short_title']) for c in school_types)
         self.fields['school_type_id'] = forms.TypedChoiceField(choices=school_choices, label='Тип школы', required=True, coerce=int)
+        self.init_messages()

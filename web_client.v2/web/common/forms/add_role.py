@@ -16,3 +16,4 @@ class AddRoleForm(WebForm):
         self.fields['person_id'] = forms.TypedChoiceField(choices=person_choices, label='Участник', required=True, coerce=int)
         competition_choices = ((c['id'], c['year']) for c in competitions)
         self.fields['competition_id'] = forms.TypedChoiceField(choices=competition_choices, label='Год соревнования', required=True, coerce=int)
+        self.init_messages()

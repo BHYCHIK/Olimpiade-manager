@@ -52,6 +52,7 @@
                 <li><a href="/add_criteria_title">Добавить критерий</a></li>
 		<li class="divider"></li>
                 <li><a href="/add_work">Добавить работу</a></li>
+                <li><a href="/add_score">Проставить оценки</a></li>
 		<li class="divider"></li>
                 <li><a href="/competitions">Соревнования</a></li>
                 <li><a href="/start_competition">Начать соревнование</a></li>
@@ -75,15 +76,12 @@
     </div>
 
     {% include 'common/modals/signin.html' %}
-    <div class="row">
+    <div class="container">
       <div class="col-md-8 col-md-offset-2">
-        <div class="container">
         {% block content %} 
         {% endblock %}
-        </div>
       </div>
     </div>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/media/js/bootstrap.min.js"></script>
     <script src="/media/js/common.js"></script>
     {% block js %}{% endblock %}

@@ -43,7 +43,7 @@ class ApiUser(object):
         if session_id:
             request.session['id'] = session_id
             request.session['admin_priv'] = admin_priv
-        return session_id
+        return (session_id, self.get_api().get_last_error())
 
     def logout(self):
         return self.get_api().logout()
@@ -73,13 +73,18 @@ class ApiUser(object):
 
 class Api(object):
     ERR_CODE_OK = 0
+    ERR_CODE_INVALID_LOGIN = 6
+
     MAX_ELEMENTS = 1000
 
     def __init__(self, session_id=None, backend_ip=None):
         self._session_id = session_id
         self.backend_ip = backend_ip or settings.BACKEND_HOST
-
+        self._error = None
+    def get_last_error(self):
+        return self._error
     def _send_req(self, cmd, data):
+        self._error = None
         json_data = dict(data)
         json_data.update({'id': 1, 'cmd': cmd, 'ip_addr': '127.0.0.1', 'session_id': self._session_id})
         logger = logging.getLogger('main')
@@ -89,25 +94,27 @@ class Api(object):
             sock.send(json.dumps(json_data, ensure_ascii=False).encode('utf-8') + '\r\n'.encode('utf-8'))
             data = ' '
             response = ''
-            while len(data):
+            while data:
                 data = sock.recv(4096)
                 response += data
                 error = False
                 try:
                     result = json.loads(response.decode('utf-8'))
                 except ValueError:
-                    error = True
-                if not error:
-                    break
-
-        except socket.error as ex:
+                    continue
+                break
+            if not response:
+                logger.error(u'не получен ответ от сервера при отсылке команды %s' % cmd)
+                return None
+        except socket.error:
             logger.error(u'произошла ошибка при отсылке серверу команды %s' % cmd)
             return None
 
         response = response.decode('utf-8')
-        logger.info(u'получен ответ от сервера: %s' % (response))
+        logger.info(u'получен ответ от сервера на команду %s: %s' % (cmd, response))
         if result['error_code'] != self.ERR_CODE_OK:
             logger.error(u'получен код ошибки %d и описание ошибки [%s] от сервера при запросе команды %s' % (result['error_code'], result['error_text'], cmd))
+            self._error = {'code': result['error_code'], 'text': result['error_text']}
             return None
 
         return result
@@ -116,7 +123,7 @@ class Api(object):
         data = {}
         for key, value in reg_data.iteritems():
             if isinstance(value, datetime.date):
-                data[key] = time.strftime('%Y-%m-%d', value.timetuple())
+                data[key] = time.strftime('%Y%m%d', value.timetuple())
             else:
                 data[key] = value if value is not None else '' # hack because API doesn't support null values or missing fields
         return self._send_req('onp_register_person', data)
@@ -166,6 +173,7 @@ class Api(object):
         return r and r.get('data', None)
     def get_competition_curators(self, competition_id):
         r = self._send_req('onp_get_competition_curators', {'from': 0, 'count': self.MAX_ELEMENTS, 'competition_id': competition_id})
+        print('curators2', r)
         return r and r.get('data', None)
     def get_city(self, city_id):
         r = self._send_req('onp_get_city', {'city_id': city_id})
@@ -175,4 +183,21 @@ class Api(object):
     def add_role(self, role):
         return self._send_req('onp_add_role', role)
     def add_work(self, work):
-        return self._send_req('onp_add_work', work)
+        rwork = dict(work)
+        rwork.update({'registration_date': time.strftime('%Y%m%d', datetime.date.today().timetuple())})
+        return self._send_req('onp_add_work', rwork)
+    def add_score(self, score):
+        rscore = dict(score)
+        rwork.update({'date': time.strftime('%Y%m%d', datetime.date.today().timetuple())})
+        return self._send_req('onp_add_score', rscore)
+    def add_criteria_score(self, score):
+        return self._send_req('onp_add_criteria_score', score)
+    def get_competition_works(self, competition_id):
+        r = self._send_req('onp_get_competition_works', {'competition_id': competition_id, 'from': 0, 'count': self.MAX_ELEMENTS})
+        return r and r.get('data', None)
+    def get_role(self, role_id):
+        r = self._send_req('onp_get_role_by_id', {'role_id': role_id})
+        return r and r.get('data', None)
+    def get_person(self, person_id):
+        r = self._send_req('onp_get_person_by_id', {'person_id': person_id})
+        return r and r.get('data', None)

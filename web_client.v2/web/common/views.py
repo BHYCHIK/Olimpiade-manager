@@ -10,6 +10,10 @@ from django.template import RequestContext
 import datetime
 
 @cache_page(settings.caching_settings['static_page_cache_time'])
+def error500(request):
+    return render_to_response('common/500.html', {}, context_instance=RequestContext(request))
+
+@cache_page(settings.caching_settings['static_page_cache_time'])
 def index(request):
     return render_to_response('common/index.html', {}, context_instance=RequestContext(request))
 
@@ -53,7 +57,13 @@ def account_login(request):
         raise ValueError() #TODO: 404
 
     post = request.POST
-    red_url = '/' if request.api_user.login(request, post['login'], post['password']) else '/bad_login'
+    sess_id, err = request.api_user.login(request, post['login'], post['password'])
+    if sess_id:
+        red_url = '/'
+    elif err and err['code'] == Api.ERR_CODE_INVALID_LOGIN:
+        red_url = '/bad_login'
+    else:
+        red_url = '/500'
     return HttpResponseRedirect(red_url)
 
 def account_logout(request):
@@ -181,15 +191,35 @@ def add_work(request, api):
             curator = dict(c)
             curator.update({'year': year})
             comp_curators.append(curator)
-        curators.extend(comp_participants)
+        curators.extend(comp_curators)
 
     schools = api.get_schools()
+    print('curators', curators)
     form = AddWorkForm(participants, curators, schools, request.POST or None)
     if form.is_valid():
         reg_data = form.cleaned_data
-        reg_data['registration_date'] = '2013-01-01'#datetime.date.today()
         if api.add_work(reg_data):
             return HttpResponseRedirect('/thanks?from=successful_add')
+
+    c = {'form': form}
+    return render_to_response('common/forms/simple.html', c, context_instance=RequestContext(request))
+
+@ApiUser.admin_required
+def add_score(request, api):
+    works = []
+    year = datetime.date.today().year
+    comps = (c for c in api.get_competitions() if c['year'] == year)
+    for competition in comps: 
+        cw = api.get_competition_works(competition['id'])
+        participants = (api.get_role(w['id'])['person_id'] for w in cw)
+        people = map(api.get_person, participants)
+        works.extend({'id': w['id'], 'title': w['title'], 'person_name': '%s %s %s' % (p['surname'], p['first_name'], p['second_name'])} for w, p in zip(cw, people))
+    criteria_titles = api.get_criteria_titles()
+    form = AddCriteriaScoreForm(criteria_titles, works, year, request.POST or None)
+    if form.is_valid():
+        reg_data = form.cleaned_data
+#        if api.add_work(reg_data):
+        return HttpResponseRedirect('/thanks?from=successful_add')
 
     c = {'form': form}
     return render_to_response('common/forms/simple.html', c, context_instance=RequestContext(request))

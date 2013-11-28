@@ -87,7 +87,10 @@ def broadcast_address():
     cs.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     cs.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-    cs.sendto("a", ('255.255.255.255', conf.broadcast_listening_port))
+    try:
+        cs.sendto("a", ('255.255.255.255', conf.broadcast_listening_port))
+    except:
+        cs.sendto("a", ('127.0.0.255', conf.broadcast_listening_port))
     cs.close()
 
 def start_server():

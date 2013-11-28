@@ -13,3 +13,5 @@ class AddCityForm(WebForm):
         super(AddCityForm, self).__init__(*args, **kwargs)
         city_choices = ((c['id'], c['short_title']) for c in city_types)
         self.fields['city_type_id'] = forms.TypedChoiceField(choices=city_choices, label='Тип города', required=True, coerce=int)
+
+        self.init_messages()
