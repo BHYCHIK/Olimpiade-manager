@@ -32,7 +32,9 @@ class ApiUser(object):
             self._is_admin = True if request.session['admin_priv'] else False
         else:
             self._is_authenticated = False
-            self._api = None
+            self._is_admin = False
+            self._api = Api(backend_ip=get_backend_ip())
+        
         logger = logging.getLogger('main')
         auth_str = u'Авторизованный' if self.is_authenticated() else u'Неавторизованный'
         logger.info(u'%s пользователь запросил страницу %s' % (auth_str, request.path))
