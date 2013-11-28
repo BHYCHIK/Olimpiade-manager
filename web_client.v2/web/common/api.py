@@ -17,7 +17,7 @@ def get_backend_ip():
         data, addr = s.recvfrom(1)
     except socket.error as ex:
         logger = logging.getLogger('main')
-        logger.error(u'Произошла ошибка при ожидании широковещательного пакета от сервера')
+        logger.error(u'Произошла ошибка при ожидании широковещательного пакета от сервера: %s', str(ex))
         addr = (None, None)
     s.close()
     return (addr[0], settings.BACKEND_PORT)
