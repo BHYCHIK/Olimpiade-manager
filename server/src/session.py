@@ -134,7 +134,9 @@ def get_session(sess_id):
         return None
     if not res:
         return None
-    return json.loads(res)
+    r = json.loads(res)
+    r["roles"] = _get_roles(r["person_id"])
+    return r
 
 def delete_session(sess_id):
     conf = config.Config();

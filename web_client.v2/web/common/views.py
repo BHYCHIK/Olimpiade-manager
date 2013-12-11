@@ -8,6 +8,7 @@ from common.forms import *
 from common.api import Api, ApiUser
 from django.template import RequestContext
 import datetime
+import logging
 
 @cache_page(settings.caching_settings['static_page_cache_time'])
 def error500(request):
@@ -16,6 +17,11 @@ def error500(request):
 @cache_page(settings.caching_settings['static_page_cache_time'])
 def index(request):
     return render_to_response('common/index.html', {}, context_instance=RequestContext(request))
+
+
+@cache_page(settings.caching_settings['static_page_cache_time'])
+def no_expert(request):
+    return render_to_response('common/no_expert.html', {}, context_instance=RequestContext(request))
 
 def simple_form(form_cls, redirect):
     def wrap(func):
@@ -206,8 +212,21 @@ def add_work(request, api):
 
 @ApiUser.admin_required
 def add_score(request, api):
-    works = []
     year = datetime.date.today().year
+    roles = request.api_user.roles()
+    expert_id = None
+    for role in roles:
+        cid = role['competition_id']
+        if role['role'] == 'expert':
+            comp = api.get_competition(cid)
+            if comp['year'] == year:
+                expert_id = role['id']
+    if not expert_id:
+        logger = logging.getLogger('main')
+        logger.error(u'Пользователь не является экспертом в текущих соревнованиях, поэтому ему отказывается в доступе к проставлению оценок')
+        return HttpResponseRedirect('/no_expert')
+
+    works = []
     comps = (c for c in api.get_competitions() if c['year'] == year)
     for competition in comps: 
         cw = api.get_competition_works(competition['id'])
@@ -218,7 +237,19 @@ def add_score(request, api):
     form = AddCriteriaScoreForm(criteria_titles, works, year, request.POST or None)
     if form.is_valid():
         reg_data = form.cleaned_data
-#        if api.add_work(reg_data):
+        score = api.add_score({'expert_id': expert_id, 'work_id': reg_data['work_id']})
+
+        err = False
+        for key, value in reg_data.iteritems():
+            if not key.startswith('cr_'):
+                continue
+            i = int(key[len('cr_'):])
+            if not api.add_criteria_score({'score_id': score['score_id'], 'criteria_title_id': criteria_titles[i]['id'], 'value': value}):
+                err = True
+                break
+            
+        if err:
+            raise ValueError
         return HttpResponseRedirect('/thanks?from=successful_add')
 
     c = {'form': form}

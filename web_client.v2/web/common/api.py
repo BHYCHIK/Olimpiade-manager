@@ -28,7 +28,9 @@ class ApiUser(object):
             session_id = request.session['id']
             self._session_id = session_id
             self._api = Api(session_id, get_backend_ip())
-            self._is_authenticated = self.get_api().check_session()
+            cs_res = self.get_api().check_session()
+            self._roles = cs_res['roles'] if cs_res else None
+            self._is_authenticated = cs_res is not None 
             self._is_admin = True if request.session['admin_priv'] else False
         else:
             self._is_authenticated = False
@@ -53,6 +55,9 @@ class ApiUser(object):
         return self._is_authenticated
     def is_admin(self):
         return self.is_authenticated() and self._is_admin
+
+    def roles(self):
+        return self._roles
 
     @staticmethod
     def login_required(func):
@@ -190,7 +195,7 @@ class Api(object):
         return self._send_req('onp_add_work', rwork)
     def add_score(self, score):
         rscore = dict(score)
-        rwork.update({'date': time.strftime('%Y%m%d', datetime.date.today().timetuple())})
+        rscore.update({'date': time.strftime('%Y%m%d', datetime.date.today().timetuple())})
         return self._send_req('onp_add_score', rscore)
     def add_criteria_score(self, score):
         return self._send_req('onp_add_criteria_score', score)
@@ -202,4 +207,7 @@ class Api(object):
         return r and r.get('data', None)
     def get_person(self, person_id):
         r = self._send_req('onp_get_person_by_id', {'person_id': person_id})
+        return r and r.get('data', None)
+    def get_competition(self, competition_id):
+        r = self._send_req('onp_get_competition_by_id', {'competition_id': competition_id})
         return r and r.get('data', None)

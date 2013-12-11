@@ -32,4 +32,5 @@ urlpatterns = patterns('',
     url(r'^add_work$', 'common.views.add_work'),
     url(r'^add_score$', 'common.views.add_score'),
     url(r'^500$', 'common.views.error500'),
+    url(r'^no_expert$', 'common.views.no_expert'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

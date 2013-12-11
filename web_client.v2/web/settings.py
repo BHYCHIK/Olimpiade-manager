@@ -2,7 +2,7 @@
 from os import path, pardir
 import django.conf.global_settings as DEFAULT_SETTINGS
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
