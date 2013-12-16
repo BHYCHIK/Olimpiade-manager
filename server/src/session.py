@@ -33,7 +33,7 @@ def _fetch_all_dict(cursor):
         result.append(row)
     return result
 
-def _get_roles(person_id):
+def _get_roles(person_id, log=True):
     sql = "SELECT id, competition_id, role from role where person_id=%(person_id)s"
     sql_args = {}
     sql_args["person_id"] = person_id
@@ -44,7 +44,8 @@ def _get_roles(person_id):
         conn = MySQLdb.connect(host=conf.db_host, charset="utf8", use_unicode=True, user=conf.db_user, passwd=conf.db_pass, db=conf.db_name)
     except Exception, e:
         mysql_exception = e
-        logger.Logger().error(u"Ошибка СУБД: " + str(mysql_exception))
+        if log:
+            logger.Logger().error(u"Ошибка СУБД: " + str(mysql_exception))
         raise mysql_exception
     cur = conn.cursor()
 
@@ -135,7 +136,10 @@ def get_session(sess_id):
     if not res:
         return None
     r = json.loads(res)
-    r["roles"] = _get_roles(r["person_id"])
+    try:
+        r["roles"] = _get_roles(r["person_id"], False)
+    except:
+        pass
     return r
 
 def delete_session(sess_id):
